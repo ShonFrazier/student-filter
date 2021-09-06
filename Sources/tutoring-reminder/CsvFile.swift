@@ -17,19 +17,12 @@
 
 import Foundation
 
-struct CsvFile : CustomDebugStringConvertible {
+class CsvFile : CustomDebugStringConvertible {
     private let fileDescription: CsvFileDescription
-
     private let hasHeader: Bool
-
-    private var lineNumber = 0 // one-based
-    private var fields = [String:String]()
     private var fieldNames = [String]() // ordered; stringified Ints when there's no header
-    var hasMoreLines: Bool {
-        lineNumber < lines.count
-    }
 
-    private var lines: [String]
+    public let lines: [CsvLine]
 
     init?(_ fd: CsvFileDescription) throws {
         self.fileDescription = fd
@@ -53,21 +46,67 @@ struct CsvFile : CustomDebugStringConvertible {
         }
 
         let substrings = allString.split(separator: "\n", omittingEmptySubsequences: false)
-        lines = substrings.map { "\($0)".trimmingCharacters(in: CharacterSet.whitespaces) }
-
-        lineNumber += fd.skipLines
+        var lines = substrings.map { "\($0)".trimmingCharacters(in: CharacterSet.whitespaces) }
 
         if fd.skipLines > 0 {
             fd.skippedLines = Array<String>(lines[0..<fd.skipLines])
+            lines = Array<String>(lines[fd.skipLines..<lines.count])
         }
+
+        var fieldNames = [String]() // ordered; stringified Ints when there's no header
 
         self.hasHeader = fd.hasCsvHeader
+        let columns = CsvLine.split(line: lines[0])
         if self.hasHeader {
-            self.advance()
+            columns.forEach { name in
+                let lowerName = name.lowercased()
+                fieldNames.append(lowerName)
+            }
+            lines.remove(at: 0)
+        } else {
+            for i in 0..<columns.count {
+                let name = "\(i)"
+                fieldNames.append(name)
+            }
         }
+
+        self.lines = lines.map { CsvLine(line: $0, columnNames: fieldNames) }
+        self.fieldNames = fieldNames
     }
 
-    private func split(line: String) -> [String] {
+    var debugDescription: String {
+        return "\(lines[0].columns.count) fields:\n - \(fieldNames.joined(separator: "\n - "))\n\(fileDescription.debugDescription)"
+    }
+}
+
+class CsvLine {
+    let columns: [String: String]
+
+    init(line: String, columnNames: [String]) {
+        let columnValues = CsvLine.split(line: line)
+        var columns = [String:String]()
+        if columnValues.count != columnNames.count {
+            print("Column values or Column names is the wrong size")
+            self.columns = columns
+            return
+        }
+
+        for i in 0..<columnNames.count {
+            columns[columnNames[i]] = columnValues[i]
+        }
+
+        self.columns = columns
+    }
+
+    func get(field name: String) -> String? {
+        return columns[name.lowercased()]
+    }
+
+    func get(field index: Int) -> String? {
+        return get(field: "\(index)")
+    }
+
+    public static func split(line: String) -> [String] {
         var s = ""
         var allStrings = [String]()
         var ignoreCommas = false
@@ -87,43 +126,5 @@ struct CsvFile : CustomDebugStringConvertible {
         }
         allStrings.append(s)
         return allStrings
-    }
-
-    mutating func advance() {
-        if fieldNames.count == 0 {
-            let columns = split(line: lines[lineNumber])
-            if hasHeader {
-                columns.forEach { name in
-                    let lowerName = name.lowercased()
-                    fieldNames.append(lowerName)
-                }
-                lineNumber += 1
-            } else {
-                for i in 0..<columns.count {
-                    let name = "\(i)"
-                    fieldNames.append(name)
-                }
-            }
-        }
-
-        let columns = split(line: lines[lineNumber])
-        for i in 0..<columns.count {
-            let name = fieldNames[i]
-            fields[name] = columns[i]
-        }
-
-        lineNumber += 1
-    }
-
-    func get(field name: String) -> String? {
-        return fields[name.lowercased()]
-    }
-
-    func get(field index: Int) -> String? {
-        return get(field: "\(index)")
-    }
-
-    var debugDescription: String {
-        return "\(fields.count) fields:\n - \(fieldNames.joined(separator: "\n - "))\n\(fileDescription.debugDescription)"
     }
 }

@@ -17,7 +17,7 @@
 
 import Foundation
 
-@resultBuilder
+//@resultBuilder
 struct Profile {
     static func buildBlock() {
 

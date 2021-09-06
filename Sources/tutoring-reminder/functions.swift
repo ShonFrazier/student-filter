@@ -18,14 +18,13 @@
 import Foundation
 
 func readZipCodes(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
-    guard var file = try? CsvFile(fileDescription) else {
+    guard let file = try? CsvFile(fileDescription) else {
         return Set<String>()
     }
 
     var zipCodes = Set<String>()
-    while file.hasMoreLines {
-        file.advance()
-        if let zipcode = file.get(field: 0) {
+    for line in file.lines {
+        if let zipcode = line.get(field: 0) {
             zipCodes.insert(zipcode)
         }
     }
@@ -34,14 +33,13 @@ func readZipCodes(from fileDescription: CsvFileDescription) -> Set<String> { pri
 }
 
 func readCourses(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
-    guard var file = try? CsvFile(fileDescription) else {
+    guard let file = try? CsvFile(fileDescription) else {
         return Set<String>()
     }
 
     var courses = Set<String>()
-    while file.hasMoreLines {
-        file.advance()
-        if let course = file.get(field: 0)?.lowercased() {
+    for line in file.lines {
+        if let course = line.get(field: 0)?.lowercased() {
             courses.insert(course)
         }
     }
@@ -50,22 +48,20 @@ func readCourses(from fileDescription: CsvFileDescription) -> Set<String> { prin
 }
 
 func readStudents(from fileDescription: CsvFileDescription) -> [Student] { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
-    guard var file = try? CsvFile(fileDescription) else {
+    guard let file = try? CsvFile(fileDescription) else {
         return [Student]()
     }
 
     var studentList = [Student]()
 
-    while file.hasMoreLines {
-        defer { file.advance() }
-
-        guard let email = file.get(field: "student e-mail")?.lowercased() else {
+    for line in file.lines {
+        guard let email = line.get(field: "student e-mail")?.lowercased() else {
             continue
         }
-        guard let name = file.get(field: "student name") else {
+        guard let name = line.get(field: "student name") else {
             continue
         }
-        guard let zipCode = file.get(field: "zip") else {
+        guard let zipCode = line.get(field: "zip") else {
             continue
         }
 
@@ -77,7 +73,7 @@ func readStudents(from fileDescription: CsvFileDescription) -> [Student] { print
 }
 
 func readStudentEnrollment(from fileDescription: CsvFileDescription, students: [Student]) { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
-    guard var file = try? CsvFile(fileDescription) else {
+    guard let file = try? CsvFile(fileDescription) else {
         return
     }
 
@@ -86,13 +82,11 @@ func readStudentEnrollment(from fileDescription: CsvFileDescription, students: [
         studentsByEmail[student.email] = student
     }
 
-    while file.hasMoreLines {
-        defer { file.advance() }
-
-        guard let email: String = file.get(field: "student e-mail")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
+    for line in file.lines {
+        guard let email: String = line.get(field: "student e-mail")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
             continue
         }
-        guard let course = file.get(field: "course number")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
+        guard let course = line.get(field: "course number")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
             continue
         }
         guard let student = studentsByEmail[email] else {

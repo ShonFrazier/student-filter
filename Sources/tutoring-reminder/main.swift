@@ -18,7 +18,7 @@
 
 import Foundation
 
-let useTestData = false
+let useTestData = true
 
 struct FileNames {
     static let zipCode = "ZipCodeCityCountyMiles25.csv"
@@ -43,7 +43,7 @@ let studentInfoFilePath =       dataDirectoryPath.appendingPathComponent( FileNa
 let studentInfoFD = CsvFileDescription(path: studentInfoFilePath, header: true)
 
 let studentEnrollmentFilePath = dataDirectoryPath.appendingPathComponent( FileNames.enrollment )
-let studentEnrollmentFD = CsvFileDescription(path: studentEnrollmentFilePath, header: true, skipping: 2)
+let studentEnrollmentFD = CsvFileDescription(path: studentEnrollmentFilePath, header: true)
 
 
 let testStudentInfoPath =       dataDirectoryPath.appendingPathComponent( FileNames.testStudentInfo )
@@ -57,10 +57,11 @@ let finalListDir =              dataDirectoryPath.appendingPathComponent("Final"
 
 
 var localZipCodes = readZipCodes(from: zipCodeFD)
-print(zipCodeFD)
+print("\n\(#line) localZipCodes.count: \(localZipCodes.count)\n")
 
 var tutoringLabCourses = readCourses(from: coursesWithTutorsFD)
-var countByCourses = [String:Int]()
+print("\n\(#line) tutoringLabCourses.count: \(tutoringLabCourses.count)\n")
+
 var allStudents: [Student] = {
     if useTestData {
         return readStudents(from: testStudentInfoFD)
@@ -68,22 +69,34 @@ var allStudents: [Student] = {
         return readStudents(from: studentInfoFD)
     }
 }()
+print("\(#line) allStudents.count: \(allStudents.count)")
 
 if useTestData {
     readStudentEnrollment(from: testEnrollmentFD, students: allStudents)
-    print(studentEnrollmentFD)
 } else {
     readStudentEnrollment(from: studentEnrollmentFD, students: allStudents)
-    print(studentEnrollmentFD)
 }
-
-
 
 // Operations stored in vars
 var localStudents = Array<Student>(allStudents.filter { localZipCodes.contains($0.zipCode) })
+print("\(#line) localStudents.count: \(localStudents.count)")
+
+var countByCourses = [String:Int]()
+for s in localStudents {
+    for c in s.courses {
+        if tutoringLabCourses.contains(c) {
+            let count = countByCourses[c] ?? 0
+            countByCourses[c] = count + 1
+        }
+    }
+}
+print("\(#line) countByCourses: \(countByCourses.debugDescription)")
+
 for student in localStudents {
     student.courses = student.courses.filter { tutoringLabCourses.contains($0) }
 }
+
+
 var enrolledInTutorableCourses = localStudents.filter { $0.courses.count > 0 }
 var emailList = enrolledInTutorableCourses.map { $0.email }
 var emailNoDupe = emailList.removingDuplicates()
