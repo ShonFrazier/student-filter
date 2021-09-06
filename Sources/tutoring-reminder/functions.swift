@@ -32,6 +32,10 @@ func readZipCodes(from fileDescription: CsvFileDescription) -> Set<String> { pri
     return zipCodes
 }
 
+func readSections(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+    return readCourses(from: fileDescription)
+}
+
 func readCourses(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
     guard let file = try? CsvFile(fileDescription) else {
         return Set<String>()
@@ -47,12 +51,12 @@ func readCourses(from fileDescription: CsvFileDescription) -> Set<String> { prin
     return courses
 }
 
-func readStudents(from fileDescription: CsvFileDescription) -> [Student] { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readStudents(from fileDescription: CsvFileDescription) -> Set<Student> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
     guard let file = try? CsvFile(fileDescription) else {
-        return [Student]()
+        return Set<Student>()
     }
 
-    var studentList = [Student]()
+    var studentList = Set<Student>()
 
     for line in file.lines {
         guard let email = line.get(field: "student e-mail")?.lowercased() else {
@@ -66,13 +70,13 @@ func readStudents(from fileDescription: CsvFileDescription) -> [Student] { print
         }
 
         let student = Student(email: email, zipCode: zipCode, name: name)
-        studentList.append(student)
+        studentList.insert(student)
     }
 
     return studentList
 }
 
-func readStudentEnrollment(from fileDescription: CsvFileDescription, students: [Student]) { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readStudentEnrollment(from fileDescription: CsvFileDescription, students: Set<Student>) { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
     guard let file = try? CsvFile(fileDescription) else {
         return
     }

@@ -26,6 +26,8 @@ struct FileNames {
     static let studentInfo = "StudentInfoFall2021.csv"
     static let coursesWithTutors = "CourseListForNewtonCampusTutoring.txt"
     static let finalEmailList = "FinalList.txt"
+    static let campusSections = "CampusSections.txt"
+    static let tutorableSections = "TutorableSections.txt"
 
     static let testStudentInfo = "StudentInfoTestFile.csv"
     static let testEnrollment = "StudentEnrollmentTestFile.csv"
@@ -45,6 +47,12 @@ let studentInfoFD = CsvFileDescription(path: studentInfoFilePath, header: true)
 let studentEnrollmentFilePath = dataDirectoryPath.appendingPathComponent( FileNames.enrollment )
 let studentEnrollmentFD = CsvFileDescription(path: studentEnrollmentFilePath, header: true)
 
+let campusSectionsFilePath = dataDirectoryPath.appendingPathComponent( FileNames.campusSections )
+let campusSectionsFD = CsvFileDescription(path: campusSectionsFilePath)
+
+let tutorableSectionsFilePath = dataDirectoryPath.appendingPathComponent( FileNames.tutorableSections )
+let tutorableSectionsFD = CsvFileDescription(path: tutorableSectionsFilePath)
+
 
 let testStudentInfoPath =       dataDirectoryPath.appendingPathComponent( FileNames.testStudentInfo )
 let testStudentInfoFD = CsvFileDescription(path: testStudentInfoPath, header: true)
@@ -62,7 +70,14 @@ print("\n\(#line) localZipCodes.count: \(localZipCodes.count)\n")
 var tutoringLabCourses = readCourses(from: coursesWithTutorsFD)
 print("\n\(#line) tutoringLabCourses.count: \(tutoringLabCourses.count)\n")
 
-var allStudents: [Student] = {
+var campusSections = readSections(from: campusSectionsFD)
+print("\n\(#line) campusSections.count: \(campusSections.count)\n")
+
+var tutorableSection = readSections(from: tutorableSectionsFD)
+print("\n\(#line) tutorableSection.count: \(tutorableSection.count)\n")
+
+
+var allStudents: Set<Student> = {
     if useTestData {
         return readStudents(from: testStudentInfoFD)
     } else {

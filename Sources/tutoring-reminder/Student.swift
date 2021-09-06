@@ -17,7 +17,7 @@
 
 import Foundation
 
-class Student: Comparable, CustomDebugStringConvertible, CustomStringConvertible {
+class Student: Hashable, CustomDebugStringConvertible, CustomStringConvertible {
     var email: String
     var zipCode: String
     var name: String
@@ -34,6 +34,10 @@ class Student: Comparable, CustomDebugStringConvertible, CustomStringConvertible
 
     func append(course: String) {
         courses.append(course)
+    }
+
+    func hash(into hasher: inout Hasher) {
+        description.hash(into: &hasher)
     }
 
     static func < (lhs: Student, rhs: Student) -> Bool {
