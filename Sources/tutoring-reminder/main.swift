@@ -96,7 +96,7 @@ if useTestData {
 var localStudents = Array<Student>(allStudents.filter { localZipCodes.contains($0.zipCode) })
 print("\(#line) localStudents.count: \(localStudents.count)")
 
-var countByCourses = [String:Int]()
+var countByCourses = [Course:Int]()
 for s in localStudents {
     for c in s.courses {
         if tutoringLabCourses.contains(c) {

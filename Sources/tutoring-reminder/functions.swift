@@ -33,17 +33,29 @@ func readZipCodes(from fileDescription: CsvFileDescription) -> Set<String> { pri
 }
 
 func readSections(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
-    return readCourses(from: fileDescription)
-}
-
-func readCourses(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
     guard let file = try? CsvFile(fileDescription) else {
         return Set<String>()
     }
 
-    var courses = Set<String>()
+    var sections = Set<String>()
     for line in file.lines {
-        if let course = line.get(field: 0)?.lowercased() {
+        if let section = line.get(field: 0)?.lowercased() {
+            sections.insert(section)
+        }
+    }
+
+    return sections
+}
+
+func readCourses(from fileDescription: CsvFileDescription) -> Set<Course> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+    guard let file = try? CsvFile(fileDescription) else {
+        return Set<Course>()
+    }
+
+    var courses = Set<Course>()
+    for line in file.lines {
+        if let courseName = line.get(field: 0)?.lowercased() {
+            let course = Course(name: courseName)
             courses.insert(course)
         }
     }
@@ -90,12 +102,17 @@ func readStudentEnrollment(from fileDescription: CsvFileDescription, students: S
         guard let email: String = line.get(field: "student e-mail")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
             continue
         }
-        guard let course = line.get(field: "course number")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
+        guard let courseName = line.get(field: "course number")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
+            continue
+        }
+        guard let section = line.get(field: "section")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
             continue
         }
         guard let student = studentsByEmail[email] else {
             continue
         }
+
+        let course = Course(name: courseName, section: section)
 
         student.append(course: course) // add course to student's list
     }

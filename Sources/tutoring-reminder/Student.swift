@@ -21,7 +21,7 @@ class Student: Hashable, CustomDebugStringConvertible, CustomStringConvertible {
     var email: String
     var zipCode: String
     var name: String
-    var courses = [String]()
+    var courses = [Course]()
 
     var description: String { "\(name) \(email) \(zipCode)" }
     var debugDescription: String { description }
@@ -32,7 +32,7 @@ class Student: Hashable, CustomDebugStringConvertible, CustomStringConvertible {
         self.name = name
     }
 
-    func append(course: String) {
+    func append(course: Course) {
         courses.append(course)
     }
 
