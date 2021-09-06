@@ -6,12 +6,12 @@ import PackageDescription
 let package = Package(
     name: "tutoring-reminder",
     dependencies: [
-        .package(name: "SwiftSyntax", url: "https://github.com/apple/swift-syntax.git", .revision("swift-5.4.2-RELEASE")),
     ],
     targets: [
         .target(
             name: "tutoring-reminder",
-            dependencies: ["SwiftSyntax"]),
+            dependencies: []
+        ),
         .testTarget(
             name: "tutoring-reminderTests",
             dependencies: ["tutoring-reminder"]),
