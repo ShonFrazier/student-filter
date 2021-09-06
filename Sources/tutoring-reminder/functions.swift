@@ -108,11 +108,14 @@ func readStudentEnrollment(from fileDescription: CsvFileDescription, students: S
         guard let section = line.get(field: "section")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
             continue
         }
+        guard let startDate = line.get(field: "start date")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
+            continue
+        }
         guard let student = studentsByEmail[email] else {
             continue
         }
 
-        let course = Course(name: courseName, section: section)
+        let course = Course(name: courseName, section: section, startDate: startDate)
 
         student.append(course: course) // add course to student's list
     }

@@ -68,7 +68,7 @@ var localZipCodes = readZipCodes(from: zipCodeFD)
 print("\n\(#line) localZipCodes.count: \(localZipCodes.count)\n")
 
 var tutoringLabCourses = readCourses(from: coursesWithTutorsFD)
-print("\n\(#line) tutoringLabCourses.count: \(tutoringLabCourses.count)\n")
+print("\n\(#line) tutoringLabCourses.count: \(tutoringLabCourses)\n")
 
 var campusSections = readSections(from: campusSectionsFD)
 print("\n\(#line) campusSections.count: \(campusSections.count)\n")
@@ -105,20 +105,31 @@ for s in localStudents {
         }
     }
 }
-print("\(#line) countByCourses: \(countByCourses.debugDescription)")
+print("\n\(#line) countByCourses: \(countByCourses)\n")
 
-for student in localStudents {
-    student.courses = student.courses.filter { tutoringLabCourses.contains($0) }
+for student in localStudents { // remove courses that are not available in the tutoring lab
+    student.courses = student.courses.filter { tutoringLabCourses.contains($0) || $0.startDate != ""}
 }
 
+var campusStudents = allStudents.filter { s in
+    var keep = false
+    for c in s.courses {
+        if campusSections.contains(c.section) {
+            keep = true
+            break
+        }
+    }
+    return keep
+}
+print("\n\(#line) campusStudents.count: \(campusStudents.count)\n")
 
-var enrolledInTutorableCourses = localStudents.filter { $0.courses.count > 0 }
+var enrolledInTutorableCourses = campusStudents.filter { $0.courses.count > 0 }
 var emailList = enrolledInTutorableCourses.map { $0.email }
 var emailNoDupe = emailList.removingDuplicates()
 
 var (_, totalStudentCourseNeed) = countByCourses.reduce(("",0), { return ("", $0.1 + $1.1) })
 
-print("Total student/course need: \(totalStudentCourseNeed)")
+print("\n\(#line) Total student/course need: \(totalStudentCourseNeed)\n")
 
 // Operations chained
 var emails: [String] = allStudents

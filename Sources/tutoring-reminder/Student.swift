@@ -17,14 +17,14 @@
 
 import Foundation
 
-class Student: Hashable, CustomDebugStringConvertible, CustomStringConvertible {
+class Student: Hashable, CustomStringConvertible/*, CustomDebugStringConvertible*/ {
     var email: String
     var zipCode: String
     var name: String
     var courses = [Course]()
 
-    var description: String { "\(name) \(email) \(zipCode)" }
-    var debugDescription: String { description }
+    var debugDescription: String { "\(name) \(email) \(zipCode)" }
+    var description: String { email }
 
     init(email: String, zipCode: String, name: String) {
         self.email = email
@@ -37,22 +37,22 @@ class Student: Hashable, CustomDebugStringConvertible, CustomStringConvertible {
     }
 
     func hash(into hasher: inout Hasher) {
-        description.hash(into: &hasher)
+        email.hash(into: &hasher)
     }
 
     static func < (lhs: Student, rhs: Student) -> Bool {
-        return lhs.description < rhs.description
+        return lhs.email < rhs.email
     }
 
     static func > (lhs: Student, rhs: Student) -> Bool {
-        return lhs.description > rhs.description
+        return lhs.email > rhs.email
     }
 
     static func == (lhs: Student, rhs: Student) -> Bool {
-        return lhs.description == rhs.description
+        return lhs.email == rhs.email
     }
 
     static func != (lhs: Student, rhs: Student) -> Bool {
-        return lhs.description != rhs.description
+        return lhs.email != rhs.email
     }
 }
