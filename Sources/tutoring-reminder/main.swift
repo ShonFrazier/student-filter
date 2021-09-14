@@ -76,20 +76,19 @@ print("\n\(#line) campusSections.count: \(campusSections.count)\n")
 var tutorableSection = readSections(from: tutorableSectionsFD)
 print("\n\(#line) tutorableSection.count: \(tutorableSection.count)\n")
 
-
-var allStudents: Set<Student> = {
+var allStudents: Set<Student>
+var studentsByEmail: [String:Student]
     if useTestData {
-        return readStudents(from: testStudentInfoFD)
+    (allStudents, studentsByEmail) = readStudents(from: testStudentInfoFD)
     } else {
-        return readStudents(from: studentInfoFD)
+    (allStudents, studentsByEmail) = readStudents(from: studentInfoFD)
     }
-}()
 print("\(#line) allStudents.count: \(allStudents.count)")
 
 if useTestData {
-    readStudentEnrollment(from: testEnrollmentFD, students: allStudents)
+    readStudentEnrollment(from: testEnrollmentFD, students: allStudents, studentsByEmail: studentsByEmail)
 } else {
-    readStudentEnrollment(from: studentEnrollmentFD, students: allStudents)
+    readStudentEnrollment(from: studentEnrollmentFD, students: allStudents, studentsByEmail: studentsByEmail)
 }
 
 // Operations stored in vars

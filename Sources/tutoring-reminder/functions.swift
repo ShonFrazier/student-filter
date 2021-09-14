@@ -63,12 +63,13 @@ func readCourses(from fileDescription: CsvFileDescription) -> Set<Course> { prin
     return courses
 }
 
-func readStudents(from fileDescription: CsvFileDescription) -> Set<Student> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readStudents(from fileDescription: CsvFileDescription) -> (Set<Student>, [String:Student]) { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
     guard let file = try? CsvFile(fileDescription) else {
-        return Set<Student>()
+        return (Set<Student>(), [String:Student]())
     }
 
     var studentList = Set<Student>()
+    var studentsByEmail = [String:Student]()
 
     for line in file.lines {
         guard let email = line.get(field: "student e-mail")?.lowercased() else {
@@ -83,19 +84,15 @@ func readStudents(from fileDescription: CsvFileDescription) -> Set<Student> { pr
 
         let student = Student(email: email, zipCode: zipCode, name: name)
         studentList.insert(student)
+        studentsByEmail[student.email] = student
     }
 
-    return studentList
+    return (studentList, studentsByEmail)
 }
 
-func readStudentEnrollment(from fileDescription: CsvFileDescription, students: Set<Student>) { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readStudentEnrollment(from fileDescription: CsvFileDescription, students: Set<Student>, studentsByEmail: [String:Student]) { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
     guard let file = try? CsvFile(fileDescription) else {
         return
-    }
-
-    var studentsByEmail = [String:Student]()
-    for student in students {
-        studentsByEmail[student.email] = student
     }
 
     for line in file.lines {
