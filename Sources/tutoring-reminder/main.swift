@@ -78,11 +78,11 @@ print("\n\(#line) tutorableSection.count: \(tutorableSection.count)\n")
 
 var allStudents: Set<Student>
 var studentsByEmail: [String:Student]
-    if useTestData {
+if useTestData {
     (allStudents, studentsByEmail) = readStudents(from: testStudentInfoFD)
-    } else {
+} else {
     (allStudents, studentsByEmail) = readStudents(from: studentInfoFD)
-    }
+}
 print("\(#line) allStudents.count: \(allStudents.count)")
 
 if useTestData {
