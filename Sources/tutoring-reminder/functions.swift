@@ -96,7 +96,7 @@ func readStudentEnrollment(from fileDescription: CsvFileDescription, students: S
     }
 
     for line in file.lines {
-        guard let email: String = line.get(field: "student e-mail")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
+        guard let email = line.get(field: "student e-mail")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
             continue
         }
         guard let courseName = line.get(field: "course number")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
