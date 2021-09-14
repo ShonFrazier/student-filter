@@ -135,7 +135,7 @@ var emails: [String] = allStudents
     .filter { localZipCodes.contains($0.zipCode) }  // local students...
     .filter { student in
         student.courses.filter { course in
-            tutoringLabCourses.contains(course)
+            tutoringLabCourses.contains(course) || course.startDate != ""
         }
         .count > 0
     }                                               // ...enrolled in courses having a tutor
