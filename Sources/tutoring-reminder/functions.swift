@@ -16,6 +16,7 @@
  */
 
 import Foundation
+public var countCurrentStudentsCourses = 0
 
 func readZipCodes(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
     guard let file = try? CsvFile(fileDescription) else {
@@ -32,14 +33,15 @@ func readZipCodes(from fileDescription: CsvFileDescription) -> Set<String> { pri
     return zipCodes
 }
 
-func readSections(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readSections(from fileDescription: CsvFileDescription) -> Set<Course> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
     guard let file = try? CsvFile(fileDescription) else {
-        return Set<String>()
+        return Set<Course>()
     }
 
-    var sections = Set<String>()
+    var sections = Set<Course>()
     for line in file.lines {
         if let section = line.get(field: 0)?.lowercased() {
+            let section = Course(name: section)
             sections.insert(section)
         }
     }
@@ -116,8 +118,11 @@ func readStudentEnrollment(from fileDescription: CsvFileDescription, students: S
         }
 
         let course = Course(name: courseName, section: section, startDate: startDate)
-
-        student.append(course: course) // add course to student's list
+        if startDate != "" {
+            student.append(course: course) // add course to student's list
+            countCurrentStudentsCourses += 1
+            student.append(startDate: startDate)
+        }
     }
 }
 

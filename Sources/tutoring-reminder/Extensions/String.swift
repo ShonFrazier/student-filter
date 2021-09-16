@@ -22,9 +22,8 @@ extension String {
         var result = self
 
         if nil != self.range(of: "~/") {
-            if let home = Process().environment?["HOME"] {
-                result = self.replacingOccurrences(of: "~/", with: "\(home)/")
-            }
+            let home = "/Users/vickie/"
+            result = self.replacingOccurrences(of: "~/", with: "\(home)")
         }
 
         return result

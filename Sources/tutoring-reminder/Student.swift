@@ -22,6 +22,8 @@ class Student: Hashable, CustomStringConvertible/*, CustomDebugStringConvertible
     var zipCode: String
     var name: String
     var courses = [Course]()
+    var sections = [Course]()
+    var startDates = String()
 
     var debugDescription: String { "\(name) \(email) \(zipCode)" }
     var description: String { email }
@@ -35,6 +37,16 @@ class Student: Hashable, CustomStringConvertible/*, CustomDebugStringConvertible
     func append(course: Course) {
         courses.append(course)
     }
+    
+    func append(section: Course){
+        sections.append(section)
+    }
+    
+    
+    func append(startDate: String){
+        startDates.append(startDate)
+    }
+    
 
     func hash(into hasher: inout Hasher) {
         email.hash(into: &hasher)
