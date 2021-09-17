@@ -19,26 +19,27 @@ import Foundation
 
 class Course : Hashable, CustomStringConvertible /*, CustomDebugStringConvertible*/ {
     let name: String
-    let section: String
-    var startDate: String
+    var sections = [Section]()
 
-    init(name: String, section: String = "", startDate: String = "") {
+    init(name: String) {
         self.name = name.lowercased()
-        self.section = section.lowercased()
-        self.startDate = startDate
+    }
+
+    func append(section: Section) {
+        sections.append(section)
     }
 
     var debugDescription: String {
-        return "\(name):\(section) \(startDate)"
+        return description
     }
 
-    var description: String { name }
+    var description: String { "Course: < \(name) \(sections.count) section\(sections.count != 1 ? "s" : "") >" }
 
     func hash(into hasher: inout Hasher) {
-        return name.hash(into: &hasher)
+        return description.hash(into: &hasher)
     }
 
     static func == (lhs: Course, rhs: Course) -> Bool {
-        return lhs.name == rhs.name
+        return lhs.description == rhs.description
     }
 }
