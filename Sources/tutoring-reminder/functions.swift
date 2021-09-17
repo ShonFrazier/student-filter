@@ -181,3 +181,41 @@ func write(list: [String], to dirPath: String, maxPerFile max: Int = 500) throws
         FileManager.default.createFile(atPath: filePath, contents: contents.data(using: .utf8))
     }
 }
+
+func abbreviate<K, V>(_ dictionary: Dictionary<K, V>, prefix: String = "") -> String where K: Hashable, V: CustomStringConvertible {
+    let keyCount = dictionary.keys.count
+    if keyCount > 10 {
+        var result = "\(prefix)\(keyCount) items -\n"
+        let keys = Array(dictionary.keys)
+        for k in keys.prefix(3) {
+            result = "\(result)\(prefix)[\(k) : \(dictionary[k]?.description ?? "")]\n"
+        }
+
+        result = "\(result)\(prefix)...\n"
+
+        for k in keys.suffix(3) {
+            result = "\(result)\(prefix)[\(k) : \(dictionary[k]?.description ?? "")]\n"
+        }
+        return result
+    } else {
+        return dictionary.description
+    }
+}
+
+func abbreviate<E>(_ array: Array<E>, prefix: String = "") -> String where E: CustomStringConvertible {
+    if array.count > 10 {
+        var result = "\(prefix)\(array.count) items -\n"
+        for e in array.prefix(3) {
+            result = "\(result)\(prefix)\(e)\n"
+        }
+
+        result = "\(result)\(prefix)...\n"
+
+        for e in array.suffix(3) {
+            result = "\(result)\(prefix)\(e)\n"
+        }
+        return result
+    } else {
+        return array.description
+    }
+}
