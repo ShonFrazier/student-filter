@@ -67,8 +67,8 @@ let finalListDir =              dataDirectoryPath.appendingPathComponent("Final"
 var localZipCodes = readZipCodes(from: zipCodeFD)
 print("\n\(#line) localZipCodes.count: \(localZipCodes.count)\n")
 
-var tutoringLabCourses = readCourses(from: coursesWithTutorsFD)
-print("\n\(#line) tutoringLabCourses.count: \(tutoringLabCourses)\n")
+var (tutoringLabCourses, coursesByName) = readCourses(from: coursesWithTutorsFD)
+print("\n\(#line) tutoringLabCourses.count: \(tutoringLabCourses.count)\n")
 
 var campusSections = readSections(from: campusSectionsFD)
 print("\n\(#line) campusSections.count: \(campusSections.count)\n")
@@ -77,44 +77,45 @@ var tutorableSection = readSections(from: tutorableSectionsFD)
 print("\n\(#line) tutorableSection.count: \(tutorableSection.count)\n")
 
 
-var allStudents: Set<Student> = {
-    if useTestData {
-        return readStudents(from: testStudentInfoFD)
-    } else {
-        return readStudents(from: studentInfoFD)
-    }
-}()
-print("\(#line) allStudents.count: \(allStudents.count)")
-
+let allStudents: Set<Student>
 if useTestData {
-    readStudentEnrollment(from: testEnrollmentFD, students: allStudents)
+    allStudents = readStudents(from: testStudentInfoFD)
 } else {
-    readStudentEnrollment(from: studentEnrollmentFD, students: allStudents)
+    allStudents = readStudents(from: studentInfoFD)
 }
+print("\n\(#line) allStudents.count: \(allStudents.count)\n")
+
+let coursesBySection: [Section:Course]
+if useTestData {
+    coursesBySection = readStudentEnrollment(from: testEnrollmentFD, students: allStudents, coursesByName: coursesByName)
+} else {
+    coursesBySection = readStudentEnrollment(from: studentEnrollmentFD, students: allStudents, coursesByName: coursesByName)
+}
+print("\n\(#line) coursesBySection: \(abbreviate(coursesBySection, prefix:"\t"))\n")
 
 // Operations stored in vars
 var localStudents = Array<Student>(allStudents.filter { localZipCodes.contains($0.zipCode) })
-print("\(#line) localStudents.count: \(localStudents.count)")
+print("\n\(#line) localStudents.count: \(localStudents.count)\n")
 
-var countByCourses = [Course:Int]()
+var countBySections = [Section:Int]()
 for s in localStudents {
-    for c in s.courses {
-        if tutoringLabCourses.contains(c) {
-            let count = countByCourses[c] ?? 0
-            countByCourses[c] = count + 1
+    for sect in s.sections {
+        if campusSections.contains(sect) {
+            let count = countBySections[sect] ?? 0
+            countBySections[sect] = count + 1
         }
     }
 }
-print("\n\(#line) countByCourses: \(countByCourses)\n")
+print("\n\(#line) countBySections: \(countBySections)\n")
 
 for student in localStudents { // remove courses that are not available in the tutoring lab
-    student.courses = student.courses.filter { tutoringLabCourses.contains($0) || $0.startDate != ""}
+    student.sections = student.sections.filter { campusSections.contains($0) || $0.startDate != ""}
 }
 
 var campusStudents = allStudents.filter { s in
     var keep = false
-    for c in s.courses {
-        if campusSections.contains(c.section) {
+    for section in s.sections {
+        if campusSections.contains(section) {
             keep = true
             break
         }
@@ -123,11 +124,11 @@ var campusStudents = allStudents.filter { s in
 }
 print("\n\(#line) campusStudents.count: \(campusStudents.count)\n")
 
-var enrolledInTutorableCourses = campusStudents.filter { $0.courses.count > 0 }
-var emailList = enrolledInTutorableCourses.map { $0.email }
+var enrolledInTutorableSections = campusStudents.filter { $0.sections.count > 0 }
+var emailList = enrolledInTutorableSections.map { $0.email }
 var emailNoDupe = emailList.removingDuplicates()
 
-var (_, totalStudentCourseNeed) = countByCourses.reduce(("",0), { return ("", $0.1 + $1.1) })
+var (_, totalStudentCourseNeed) = countBySections.reduce(("",0), { return ("", $0.1 + $1.1) })
 
 print("\n\(#line) Total student/course need: \(totalStudentCourseNeed)\n")
 
@@ -135,8 +136,8 @@ print("\n\(#line) Total student/course need: \(totalStudentCourseNeed)\n")
 var emails: [String] = allStudents
     .filter { localZipCodes.contains($0.zipCode) }  // local students...
     .filter { student in
-        student.courses.filter { course in
-            tutoringLabCourses.contains(course)
+        student.sections.filter { section in
+            campusSections.contains(section)
         }
         .count > 0
     }                                               // ...enrolled in courses having a tutor
