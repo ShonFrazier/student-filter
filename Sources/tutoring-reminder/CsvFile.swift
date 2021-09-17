@@ -70,7 +70,9 @@ class CsvFile : CustomDebugStringConvertible {
             }
         }
 
-        self.lines = lines.map { CsvLine(line: $0, columnNames: fieldNames) }
+        self.lines = lines
+                        .filter { $0.lengthOfBytes(using: .utf8) > 0 }
+                        .map { CsvLine(line: $0, columnNames: fieldNames) }
         self.fieldNames = fieldNames
     }
 
