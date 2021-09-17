@@ -32,14 +32,15 @@ func readZipCodes(from fileDescription: CsvFileDescription) -> Set<String> { pri
     return zipCodes
 }
 
-func readSections(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readSections(from fileDescription: CsvFileDescription) -> Set<Section> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
     guard let file = try? CsvFile(fileDescription) else {
-        return Set<String>()
+        return Set<Section>()
     }
 
-    var sections = Set<String>()
+    var sections = Set<Section>()
     for line in file.lines {
-        if let section = line.get(field: 0)?.lowercased() {
+        if let sectionName = line.get(field: 0)?.lowercased() {
+            let section = Section(name: sectionName, startDate: "")
             sections.insert(section)
         }
     }
@@ -47,20 +48,23 @@ func readSections(from fileDescription: CsvFileDescription) -> Set<String> { pri
     return sections
 }
 
-func readCourses(from fileDescription: CsvFileDescription) -> Set<Course> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readCourses(from fileDescription: CsvFileDescription) -> (Set<Course>, [String:Course]) { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
     guard let file = try? CsvFile(fileDescription) else {
-        return Set<Course>()
+        return (Set<Course>(), [String:Course]())
     }
 
+    var coursesByName = [String:Course]()
     var courses = Set<Course>()
     for line in file.lines {
         if let courseName = line.get(field: 0)?.lowercased() {
             let course = Course(name: courseName)
             courses.insert(course)
+
+            coursesByName[courseName] = course
         }
     }
 
-    return courses
+    return (courses, coursesByName)
 }
 
 func readStudents(from fileDescription: CsvFileDescription) -> Set<Student> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
@@ -88,9 +92,11 @@ func readStudents(from fileDescription: CsvFileDescription) -> Set<Student> { pr
     return studentList
 }
 
-func readStudentEnrollment(from fileDescription: CsvFileDescription, students: Set<Student>) { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readStudentEnrollment(from fileDescription: CsvFileDescription, students: Set<Student>, coursesByName: [String:Course]) -> [Section:Course] { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+    var coursesBySection = [Section:Course]()
+    
     guard let file = try? CsvFile(fileDescription) else {
-        return
+        return coursesBySection
     }
 
     var studentsByEmail = [String:Student]()
@@ -105,7 +111,7 @@ func readStudentEnrollment(from fileDescription: CsvFileDescription, students: S
         guard let courseName = line.get(field: "course number")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
             continue
         }
-        guard let section = line.get(field: "section")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
+        guard let sectionName = line.get(field: "section")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
             continue
         }
         guard let startDate = line.get(field: "start date")?.trimmingCharacters(in: CharacterSet.whitespaces).lowercased() else {
@@ -115,10 +121,17 @@ func readStudentEnrollment(from fileDescription: CsvFileDescription, students: S
             continue
         }
 
-        let course = Course(name: courseName, section: section, startDate: startDate)
+        if let course = coursesByName[courseName] {
+            let section = Section(name: sectionName, startDate: startDate)
+            course.append(section: section)
 
-        student.append(course: course) // add course to student's list
+            coursesBySection[section] = course
+
+            student.append(section: section) // add section to student's list
+        }
     }
+
+    return coursesBySection
 }
 
 func write(list: [String], to dirPath: String, maxPerFile max: Int = 500) throws { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
