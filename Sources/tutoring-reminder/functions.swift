@@ -33,15 +33,14 @@ func readZipCodes(from fileDescription: CsvFileDescription) -> Set<String> { pri
     return zipCodes
 }
 
-func readSections(from fileDescription: CsvFileDescription) -> Set<Course> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readSections(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
     guard let file = try? CsvFile(fileDescription) else {
-        return Set<Course>()
+        return Set<String>()
     }
 
-    var sections = Set<Course>()
+    var sections = Set<String>()
     for line in file.lines {
         if let section = line.get(field: 0)?.lowercased() {
-            let section = Course(name: section)
             sections.insert(section)
         }
     }
@@ -123,8 +122,8 @@ func readStudentEnrollment(from fileDescription: CsvFileDescription, students: S
         //if startDate != "" {
             //student.append(course: course) // add course to student's list
             //countCurrentStudentsCourses += 1
-            //student.append(section: course)          **** without this lines nothing goes in the Student.swift's 'sections' also changing 'course' to 'section' or 'startDate' gives an error for both lines
-            //student.append(startDate: course)        **** without this lines nothing goes in the Student.swift's 'startDate'
+            student.append(section: section)    //      **** without this lines nothing goes in the Student.swift's 'sections' also changing 'course' to 'section' or 'startDate' gives an error for both lines
+            student.append(startDate: section)      //  **** without this lines nothing goes in the Student.swift's 'startDate'
        // }
  
     }

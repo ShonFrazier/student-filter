@@ -119,46 +119,31 @@ print("\n\(#line) Total Current Students: \(currentStudents.count)\n") // 14 cor
 // 9. filter Students in 25 mile radius into tutorableCourses
 // 10 get count by Course and a sum of courses
 
-// This takes each student’s course list and keeps only those courses with a start date
-/* this is being done in functions()
- let currentStudents = Array<Student>(allStudents.filter {_ in
- for student in allStudents {
- student.courses = student.courses.filter {
- $0.startDate != ""
- }
- }
- return true
- })
- */
-
 var countCurrentStudentsCourses = 0
 // CAMPUS DATA
-var countBySection = [Course:Int]()
+var countBySection = [String:Int]()
 var sumCountBySection = 0
 var countCurrentStudentsOnCampus = 0
 var isCurrentSemesterCourse = false
 var isCampusCourse = false
 var courseSection = ""
 
-for s in currentStudents {
-    for sd in s.courses {
-        if sd.startDate != "" {
+for student in currentStudents {
+    for course in student.courses {
+        if course.startDate != "" {
             isCurrentSemesterCourse = true
             countCurrentStudentsCourses += 1 // 22 correct
             
-            for c in s.sections{
-                for sec in c.section {
-                    if campusSections.contains(sec) {
-                        // do lines below
-                    }
-                }
-                if campusSections.contains(c.section) { // is never true *** tried to compare c.section
+            for section in student.sections{
+                if campusSections.contains(section) { // is never true *** tried to compare c.section
                     print("\n\(#line) section is on campus")
                     isCampusCourse = true
                     countCurrentStudentsOnCampus += 1
-                    let count = countBySection[c] ?? 0
-                    countBySection[c] = count + 1
+                    let count = countBySection[section] ?? 0
+                    countBySection[section] = count + 1
                     sumCountBySection += 1
+                } else {
+                     print("\n\(#line) campusSections does not contain \(section)")
                 }
                 isCampusCourse = false
             }
@@ -173,13 +158,13 @@ print("\n\(#line) countBySection on Campus: \(countBySection)") // not working [
 print("\n\(#line) sumCountBySection on Campus: \(sumCountBySection)") // 10 not working
 
 // gives a count of enrollment in each tutorable section on Campus
-var countByTutorableSection = [Course:Int]() // ??? Does this reset to 0's
+var countByTutorableSection = [String:Int]() // ??? Does this reset to 0's
 var sumCountByTutorableSection = 0
-for s in allStudents {
-    for c in s.sections { // element in sections(Student)
-        if tutorableSection.contains(c) {
-            let count = countByTutorableSection[c] ?? 0
-            countByTutorableSection[c] = count + 1
+for student in allStudents {
+    for section in student.sections { // element in sections(Student)
+        if tutorableSection.contains(section) {
+            let count = countByTutorableSection[section] ?? 0
+            countByTutorableSection[section] = count + 1
             sumCountByTutorableSection += 1
         }
         
