@@ -1,16 +1,16 @@
 /*
  Copyright (c) 2021 Shon Frazier
-
+ 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
-
+ 
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
-
+ 
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -28,7 +28,7 @@ struct FileNames {
     static let finalEmailList = "FinalList.txt"
     static let campusSections = "CampusSections.txt"
     static let tutorableSections = "TutorableSections.txt"
-
+    
     static let testStudentInfo = "StudentInfoTestFile.csv"
     static let testEnrollment = "StudentEnrollmentTestFile.csv"
 }
@@ -68,7 +68,7 @@ print("\n\(#line) localZipCodes File count: \(localZipCodes.count)\n")
 var tutoringLabCourses = readCourses(from: coursesWithTutorsFD)
 print("\n\(#line) tutoringLabCourses File count: \(tutoringLabCourses.count)\n")
 
-var campusSections = readSections(from: campusSectionsFD)
+var campusSections = readSections(from: campusSectionsFD) // campusSections set of Strings
 print("\n\(#line) campusSections File count: \(campusSections.count)\n")
 
 var tutorableSection = readSections(from: tutorableSectionsFD)
@@ -91,11 +91,25 @@ if useTestData {
     readStudentEnrollment(from: studentEnrollmentFD, students: allStudents)
 }
 
+// 1. filter allStudents into currentStudents
+// 2. get count of currentStudents (this is all Perimeter Students for the Current Semester)
+var isCurrentStudent = false
+var currentStudents = Set<Student>()
+for s in allStudents {
+    for sd in s.courses {
+        if sd.startDate != "" {
+            isCurrentStudent = true
+        }
+    }
+    if isCurrentStudent {
+        currentStudents.insert(s) // *** this includes courses not in current sememter
+        isCurrentStudent = false
+    }
+}
+print("\n\(#line) Total Current Students: \(currentStudents.count)\n") // 14 correct
 
 // Operations stored in vars
 
-// 1. filter allStudents into currentStudents
-// 2. get count of currentStudents (this is all Perimeter Students for the Current Semester)
 // 3. filter currentStudents into campusStudents using CampusSections file
 // 4. get count of Campus Students and Campus Sections
 // 5. filter CampusSections to tutorableSections
@@ -106,64 +120,69 @@ if useTestData {
 // 10 get count by Course and a sum of courses
 
 // This takes each student’s course list and keeps only those courses with a start date
-let currentStudents = Array<Student>(allStudents.filter {_ in
-    for student in allStudents {
-        student.courses = student.courses.filter {
-            $0.startDate != ""
-        }
-    }
-    return true
-})
+/* this is being done in functions()
+ let currentStudents = Array<Student>(allStudents.filter {_ in
+ for student in allStudents {
+ student.courses = student.courses.filter {
+ $0.startDate != ""
+ }
+ }
+ return true
+ })
+ */
 
+var countCurrentStudentsCourses = 0
 // CAMPUS DATA
 var countBySection = [Course:Int]()
 var sumCountBySection = 0
-var countCurrentStudentsOnCampus = 0 // current students on campus
-var countCurrentStudents = 0 // all current students
-var container = false
-for s in allStudents {
-    if !s.courses.isEmpty {
-        countCurrentStudents += 1 // all current students THIS WORKS
-    }
-    if !s.sections.isEmpty { // if there is a course there is a section really don't need to check
-        for sec in s.sections {
-            if campusSections.contains(sec){
-                container = true // when container
-                let count = countBySection[sec] ?? 0
-                countBySection[sec] = count + 1
-                sumCountBySection += 1
+var countCurrentStudentsOnCampus = 0
+var isCurrentSemesterCourse = false
+var isCampusCourse = false
+var courseSection = ""
+
+for s in currentStudents {
+    for sd in s.courses {
+        if sd.startDate != "" {
+            isCurrentSemesterCourse = true
+            countCurrentStudentsCourses += 1 // 22 correct
+            
+            for c in s.sections{
+                for sec in c.section {
+                    if campusSections.contains(sec) {
+                        // do lines below
+                    }
+                }
+                if campusSections.contains(c.section) { // is never true *** tried to compare c.section
+                    print("\n\(#line) section is on campus")
+                    isCampusCourse = true
+                    countCurrentStudentsOnCampus += 1
+                    let count = countBySection[c] ?? 0
+                    countBySection[c] = count + 1
+                    sumCountBySection += 1
+                }
+                isCampusCourse = false
             }
         }
-    }
-    if container {
-        countCurrentStudentsOnCampus += 1
-        container = false
+        isCurrentSemesterCourse = false
     }
 }
-// test data = 14 code is correct
-print("\n\(#line) currentStudents \(countCurrentStudents)")
 
-// This was counted in functions()
-// test data = 22 code is correct
-print("\n\(#line) countCurrentStudentsCourses \(countCurrentStudentsCourses)")
-// test data = 6 code is NOT correct
-print("\n\(#line) countCurrentStudentsOnCampus \(countCurrentStudentsOnCampus)")
-// then total Students registered sections on campus = 3452
-//                                          test data = 22
-print("\n\(#line) countBySection on Campus: \(countBySection)")
-// test data = 10
-print("\n\(#line) sumCountBySection on Campus: \(sumCountBySection)")
+print("\n\(#line) Total Current Student Courses with start date: \(countCurrentStudentsCourses)") // 22 working
+print("\n\(#line) Total Current Students on Campus: \(countCurrentStudentsOnCampus)") // 6 not working
+print("\n\(#line) countBySection on Campus: \(countBySection)") // not working [85515: 2, 97005: 2, 86235: 1, 93567: 1, 87661: 1, 85855: 1, 95134: 2]
+print("\n\(#line) sumCountBySection on Campus: \(sumCountBySection)") // 10 not working
 
 // gives a count of enrollment in each tutorable section on Campus
 var countByTutorableSection = [Course:Int]() // ??? Does this reset to 0's
 var sumCountByTutorableSection = 0
 for s in allStudents {
-    for c in s.sections {
+    for c in s.sections { // element in sections(Student)
         if tutorableSection.contains(c) {
             let count = countByTutorableSection[c] ?? 0
             countByTutorableSection[c] = count + 1
             sumCountByTutorableSection += 1
         }
+        
     }
 }
 print("\n\(#line) countByTutorableSection on Campus: \(countByTutorableSection)\n")
@@ -173,10 +192,10 @@ print("\(#line) sumCountByTutorableSection on Campus: \(sumCountByTutorableSecti
 
 // 25 MILE RADIUS DATA
 // reduce allStudents to localStudents in 25 mile radius
-    let localStudents = Array<Student>(allStudents.filter { localZipCodes.contains($0.zipCode) })
-print("\(#line) localStudents in 25 mile radius count: \(localStudents.count)")
+let localStudents = Array<Student>(allStudents.filter { localZipCodes.contains($0.zipCode) })
+print("\(#line) localStudents in 25 mile radius count: \(localStudents.count)") // 12 sb 11
 
-// gives a count by course name
+// gives a count by course name *** THIS WORKS ***
 var countByCourses = [Course:Int]()
 var sumCountByCourses = 0
 for s in localStudents {
@@ -188,10 +207,10 @@ for s in localStudents {
         }
     }
 }
-print("\n\(#line) countByCourses in localStudents: \(countByCourses)\n")
+print("\n\(#line) countByCourses in localStudents: \(countByCourses)\n") // [engl-1101: 3, math-2652: 1, econ-2105: 2, math-1113: 1, math-1111: 1, acct-2102: 1, acct-2101: 1]
 print("\(#line) sumCountByCourses in localStudents: \(sumCountByCourses)\n")
 
-     // That takes each student’s course list and keeps only those courses with a start date
+// That takes each student’s course list and keeps only those courses with a start date
 for student in localStudents { // remove courses that are not available in the tutoring lab
     student.courses = student.courses.filter { tutoringLabCourses.contains($0) || $0.startDate != ""}
 }
@@ -208,7 +227,7 @@ var emails: [String] = allStudents // should be coming from current students
             tutoringLabCourses.contains(course)
         }
         .count > 0
-    }                                               // ...enrolled in courses having a tutor
+}                                               // ...enrolled in courses having a tutor
     .map { $0.email }                               // just their emails
     .removingDuplicates()
 

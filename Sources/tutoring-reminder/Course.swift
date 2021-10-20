@@ -18,9 +18,9 @@
 import Foundation
 
 class Course : Hashable, CustomStringConvertible /*, CustomDebugStringConvertible*/ {
-    let name: String
-    let section: String
-    var startDate: String
+    let name: String // course name
+    let section: String // course section
+    var startDate: String // course startDate
 
     init(name: String, section: String = "", startDate: String = "") {
         self.name = name.lowercased()

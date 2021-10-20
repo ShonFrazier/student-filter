@@ -16,7 +16,7 @@
  */
 
 import Foundation
-public var countCurrentStudentsCourses = 0
+//public var countCurrentStudentsCourses = 0
 
 func readZipCodes(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
     guard let file = try? CsvFile(fileDescription) else {
@@ -118,11 +118,15 @@ func readStudentEnrollment(from fileDescription: CsvFileDescription, students: S
         }
 
         let course = Course(name: courseName, section: section, startDate: startDate)
-        if startDate != "" {
-            student.append(course: course) // add course to student's list
-            countCurrentStudentsCourses += 1
-            student.append(startDate: startDate)
-        }
+        student.append(course: course) // add course to student's list
+
+        //if startDate != "" {
+            //student.append(course: course) // add course to student's list
+            //countCurrentStudentsCourses += 1
+            //student.append(section: course)          **** without this lines nothing goes in the Student.swift's 'sections' also changing 'course' to 'section' or 'startDate' gives an error for both lines
+            //student.append(startDate: course)        **** without this lines nothing goes in the Student.swift's 'startDate'
+       // }
+ 
     }
 }
 
