@@ -1,16 +1,16 @@
 /*
  Copyright (c) 2021 Shon Frazier
- 
+
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -28,7 +28,7 @@ struct FileNames {
     static let finalEmailList = "FinalList.txt"
     static let campusSections = "CampusSections.txt"
     static let tutorableSections = "TutorableSections.txt"
-    
+
     static let testStudentInfo = "StudentInfoTestFile.csv"
     static let testEnrollment = "StudentEnrollmentTestFile.csv"
 }
@@ -91,6 +91,10 @@ if useTestData {
     readStudentEnrollment(from: studentEnrollmentFD, students: allStudents)
 }
 
+func shouldKeepStudent(student: Student) -> Bool {
+    return student.hasCoursesWithStartDate
+}
+
 // 1. Take current students from allStudents and put into currentStudents
 // 2. get count of currentStudents (this is all Perimeter Students for the Current Semester)
 
@@ -98,31 +102,10 @@ if useTestData {
 // currentcourses = courses.filter{$0.startDate != ""}
 //currentStudents = students.filter{for $0.startDate != ""}
 var isCurrentStudent = false
-var currentStudents = Set<Student>()
-for student in allStudents {
-    for startDate in student.courses {
-        if startDate.startDate != "" {
-            isCurrentStudent = true
-            currentStudents.insert(student)
-        }
-        // remove courses that are not current semester courses
-        //currentStudents.remove(student.courses)
-    }
-    if isCurrentStudent {
-        //currentStudents.insert(student) // *** this includes courses not in current sememter
-        isCurrentStudent = false
-    }
-}
+var currentStudents = Set<Student>(
+    allStudents.filter( shouldKeepStudent )
+)
 print("\n\(#line) Total Current Students: \(currentStudents.count)\n") // 14 correct
-
-currentStudents = (currentStudents.filter {_ in // didn't work
-    for student in currentStudents {
-        student.courses = student.courses.filter {
-            $0.startDate != ""
-        }
-    }
-    return true
-})
 
 // Operations stored in vars
 
@@ -149,7 +132,7 @@ for student in currentStudents {
         if course.startDate != "" {
             isCurrentSemesterCourse = true
             countCurrentStudentsCourses += 1 // 22 correct
-            
+
             for section in student.sections{
                 if campusSections.contains(section) { // is never true *** tried to compare c.section
                     print("\(#line) section is on campus \(section) start date \(course.startDate) \(student.email)")
@@ -185,7 +168,7 @@ for student in allStudents {
             countByTutorableSection[section] = count + 1
             sumCountByTutorableSection += 1
         }
-        
+
     }
 }
 print("\n\(#line) countByTutorableSection on Campus: \(countByTutorableSection)\n")

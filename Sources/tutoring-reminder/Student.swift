@@ -37,15 +37,22 @@ class Student: Hashable, CustomStringConvertible/*, CustomDebugStringConvertible
     func append(course: Course) {
         courses.append(course)
     }
-    
+
     func append(section: String){
         sections.append(section)
     }
-    
+
     func append(startDate: String){
         startDates.append(startDate)
     }
-    
+
+    var hasCoursesWithStartDate: Bool {
+        return coursesWithStartDate.count > 0
+    }
+
+    var coursesWithStartDate: [Course] {
+        return courses.filter { $0.startDate != "" }
+    }
 
     func hash(into hasher: inout Hasher) {
         email.hash(into: &hasher)
