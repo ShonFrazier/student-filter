@@ -127,19 +127,17 @@ var isCampusSection = false
 var courseSection = ""
 
 for student in currentStudents {
-    for course in student.coursesWithStartDate {
-        countCurrentStudentsCourses += 1 // 22 correct
+    countCurrentStudentsCourses += student.coursesWithStartDate.count
 
-        for section in student.sections {
-            if campusSections.contains(section) { // is never true *** tried to compare c.section
-                print("\(#line) section is on campus \(section) start date \(course.startDate) \(student.email)")
-                isCampusSection = true
-                let count = countBySection[section] ?? 0
-                countBySection[section] = count + 1
-                sumCountBySection += 1
-            } else {
-                 print("\(#line) campusSections does not contain \(section) \(student.email)")
-            }
+    for section in student.sections {
+        if campusSections.contains(section) { // is never true *** tried to compare c.section
+            print("\(#line) section is     on campus \(section) \(student.email)")
+            isCampusSection = true
+            let count = countBySection[section] ?? 0
+            countBySection[section] = count + 1
+            sumCountBySection += 1
+        } else {
+            print("\(#line) section is NOT on campus \(section) \(student.email)")
         }
     }
     if isCampusSection {
