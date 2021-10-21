@@ -91,22 +91,38 @@ if useTestData {
     readStudentEnrollment(from: studentEnrollmentFD, students: allStudents)
 }
 
-// 1. filter allStudents into currentStudents
+// 1. Take current students from allStudents and put into currentStudents
 // 2. get count of currentStudents (this is all Perimeter Students for the Current Semester)
+
+// notes from conversation Wed. 10-20-21
+// currentcourses = courses.filter{$0.startDate != ""}
+//currentStudents = students.filter{for $0.startDate != ""}
 var isCurrentStudent = false
 var currentStudents = Set<Student>()
-for s in allStudents {
-    for sd in s.courses {
-        if sd.startDate != "" {
+for student in allStudents {
+    for startDate in student.courses {
+        if startDate.startDate != "" {
             isCurrentStudent = true
+            currentStudents.insert(student)
         }
+        // remove courses that are not current semester courses
+        //currentStudents.remove(student.courses)
     }
     if isCurrentStudent {
-        currentStudents.insert(s) // *** this includes courses not in current sememter
+        //currentStudents.insert(student) // *** this includes courses not in current sememter
         isCurrentStudent = false
     }
 }
 print("\n\(#line) Total Current Students: \(currentStudents.count)\n") // 14 correct
+
+currentStudents = (currentStudents.filter {_ in // didn't work
+    for student in currentStudents {
+        student.courses = student.courses.filter {
+            $0.startDate != ""
+        }
+    }
+    return true
+})
 
 // Operations stored in vars
 
@@ -136,19 +152,21 @@ for student in currentStudents {
             
             for section in student.sections{
                 if campusSections.contains(section) { // is never true *** tried to compare c.section
-                    print("\n\(#line) section is on campus")
+                    print("\(#line) section is on campus \(section) start date \(course.startDate) \(student.email)")
                     isCampusCourse = true
-                    countCurrentStudentsOnCampus += 1
                     let count = countBySection[section] ?? 0
                     countBySection[section] = count + 1
                     sumCountBySection += 1
                 } else {
-                     print("\n\(#line) campusSections does not contain \(section)")
+                     print("\(#line) campusSections does not contain \(section) \(student.email)")
                 }
-                isCampusCourse = false
             }
         }
         isCurrentSemesterCourse = false
+    }
+    if isCampusCourse {
+        countCurrentStudentsOnCampus += 1
+        isCampusCourse = false
     }
 }
 

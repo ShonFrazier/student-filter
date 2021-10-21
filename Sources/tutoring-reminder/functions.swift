@@ -122,8 +122,8 @@ func readStudentEnrollment(from fileDescription: CsvFileDescription, students: S
         //if startDate != "" {
             //student.append(course: course) // add course to student's list
             //countCurrentStudentsCourses += 1
-            student.append(section: section)    //      **** without this lines nothing goes in the Student.swift's 'sections' also changing 'course' to 'section' or 'startDate' gives an error for both lines
-            student.append(startDate: section)      //  **** without this lines nothing goes in the Student.swift's 'startDate'
+            student.append(section: section)
+            student.append(startDate: section)
        // }
  
     }
