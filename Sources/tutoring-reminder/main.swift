@@ -123,33 +123,28 @@ var countCurrentStudentsCourses = 0
 var countBySection = [String:Int]()
 var sumCountBySection = 0
 var countCurrentStudentsOnCampus = 0
-var isCurrentSemesterCourse = false
-var isCampusCourse = false
+var isCampusSection = false
 var courseSection = ""
 
 for student in currentStudents {
-    for course in student.courses {
-        if course.startDate != "" {
-            isCurrentSemesterCourse = true
-            countCurrentStudentsCourses += 1 // 22 correct
+    for course in student.coursesWithStartDate {
+        countCurrentStudentsCourses += 1 // 22 correct
 
-            for section in student.sections{
-                if campusSections.contains(section) { // is never true *** tried to compare c.section
-                    print("\(#line) section is on campus \(section) start date \(course.startDate) \(student.email)")
-                    isCampusCourse = true
-                    let count = countBySection[section] ?? 0
-                    countBySection[section] = count + 1
-                    sumCountBySection += 1
-                } else {
-                     print("\(#line) campusSections does not contain \(section) \(student.email)")
-                }
+        for section in student.sections {
+            if campusSections.contains(section) { // is never true *** tried to compare c.section
+                print("\(#line) section is on campus \(section) start date \(course.startDate) \(student.email)")
+                isCampusSection = true
+                let count = countBySection[section] ?? 0
+                countBySection[section] = count + 1
+                sumCountBySection += 1
+            } else {
+                 print("\(#line) campusSections does not contain \(section) \(student.email)")
             }
         }
-        isCurrentSemesterCourse = false
     }
-    if isCampusCourse {
+    if isCampusSection {
         countCurrentStudentsOnCampus += 1
-        isCampusCourse = false
+        isCampusSection = false
     }
 }
 
