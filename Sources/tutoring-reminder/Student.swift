@@ -36,13 +36,14 @@ class Student: Hashable, CustomStringConvertible/*, CustomDebugStringConvertible
 
     func append(course: Course) {
         courses.append(course)
+        _coursesWithStartDate = nil
     }
 
-    func append(section: String){
+    func append(section: String) {
         sections.append(section)
     }
 
-    func append(startDate: String){
+    func append(startDate: String) {
         startDates.append(startDate)
     }
 
@@ -51,8 +52,15 @@ class Student: Hashable, CustomStringConvertible/*, CustomDebugStringConvertible
     }
 
     var coursesWithStartDate: [Course] {
-        return courses.filter { $0.startDate != "" }
+        if let _coursesWithStartDate = _coursesWithStartDate {
+            return _coursesWithStartDate
+        } else {
+            _coursesWithStartDate = courses.filter { $0.startDate != "" }
+            return _coursesWithStartDate!
+        }
     }
+    // This var and the logic above are a performance enhancement: don't iterate over .courses if it hasn't changed.
+    private var _coursesWithStartDate: [Course]? = nil
 
     func hash(into hasher: inout Hasher) {
         email.hash(into: &hasher)

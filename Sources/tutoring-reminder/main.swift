@@ -22,8 +22,10 @@ let useTestData = true
 
 struct FileNames {
     static let zipCode = "ZipCodeCityCountyMiles25.csv"
-    static let enrollment = "StudentEnrollmentFall2021.csv"
-    static let studentInfo = "StudentInfoFall2021.csv"
+    //static let enrollment = "StudentEnrollmentFall2021.csv"
+    static let enrollment = "campus-v2report-enrollment-2022-01-03.csv"
+    //static let studentInfo = "StudentInfoFall2021.csv"
+    static let studentInfo = "campus-v2report-student-2022-01-03.csv"
     static let coursesWithTutors = "CourseListForNewtonCampusTutoring.txt"
     static let finalEmailList = "FinalList.txt"
     static let campusSections = "CampusSections.txt"
@@ -42,12 +44,12 @@ let coursesWithTutorsPath =     dataDirectoryPath.appendingPathComponent( FileNa
 let coursesWithTutorsFD = CsvFileDescription(path: coursesWithTutorsPath)
 
 let studentInfoFilePath =       dataDirectoryPath.appendingPathComponent( FileNames.studentInfo )
-let studentInfoFD = CsvFileDescription(path: studentInfoFilePath, header: true)
+let studentInfoFD = CsvFileDescription(path: studentInfoFilePath, header: true, skipping: 1)
 
 let studentEnrollmentFilePath = dataDirectoryPath.appendingPathComponent( FileNames.enrollment )
 let studentEnrollmentFD = CsvFileDescription(path: studentEnrollmentFilePath, header: true)
 
-let campusSectionsFilePath = dataDirectoryPath.appendingPathComponent( FileNames.campusSections )
+let campusSectionsFilePath =    dataDirectoryPath.appendingPathComponent( FileNames.campusSections )
 let campusSectionsFD = CsvFileDescription(path: campusSectionsFilePath)
 
 let tutorableSectionsFilePath = dataDirectoryPath.appendingPathComponent( FileNames.tutorableSections )
@@ -152,13 +154,13 @@ print("\n\(#line) countBySection on Campus: \(countBySection)") // not working [
 print("\n\(#line) sumCountBySection on Campus: \(sumCountBySection)") // 10 not working
 
 // gives a count of enrollment in each tutorable section on Campus
-var countByTutorableSection = [String:Int]() // ??? Does this reset to 0's
+var countByTutorableSection = [String:Int]() // ??? Does this reset to 0's - no, it resets to empty
 var sumCountByTutorableSection = 0
 for student in allStudents {
     for section in student.sections { // element in sections(Student)
         if tutorableSection.contains(section) {
-            let count = countByTutorableSection[section] ?? 0
-            countByTutorableSection[section] = count + 1
+            let count = countByTutorableSection[section] ?? 0 // and if it's empty, then we assume 0
+            countByTutorableSection[section] = count + 1 // and if it was zero, we now store a 1
             sumCountByTutorableSection += 1
         }
 
