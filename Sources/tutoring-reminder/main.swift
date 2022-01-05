@@ -66,16 +66,16 @@ struct FileNames {
 let dataDirectoryPath = "~/Documents/Programming/Swift Projects".expandingTildeInPath
 
 let zipCodeFilePath =           dataDirectoryPath.appendingPathComponent( FileNames.zipCode )
-let zipCodeFD = CsvFileDescription(path: zipCodeFilePath)
+let zipCodeFD = CsvFileDescription(path: zipCodeFilePath, convertingLineEndings: (true, .dos2unix))
 
 let coursesWithTutorsPath =     dataDirectoryPath.appendingPathComponent( FileNames.coursesWithTutors )
-let coursesWithTutorsFD = CsvFileDescription(path: coursesWithTutorsPath)
+let coursesWithTutorsFD = CsvFileDescription(path: coursesWithTutorsPath, convertingLineEndings: (true, .dos2unix))
 
 let studentInfoFilePath =       dataDirectoryPath.appendingPathComponent( FileNames.studentInfo )
-let studentInfoFD = CsvFileDescription(path: studentInfoFilePath, header: true, skipping: 2)
+let studentInfoFD = CsvFileDescription(path: studentInfoFilePath, header: true, convertingLineEndings: (true, .dos2unix), skipping: 2)
 
 let studentEnrollmentFilePath = dataDirectoryPath.appendingPathComponent( FileNames.enrollment )
-let studentEnrollmentFD = CsvFileDescription(path: studentEnrollmentFilePath, header: true, skipping: 2)
+let studentEnrollmentFD = CsvFileDescription(path: studentEnrollmentFilePath, header: true, convertingLineEndings: (true, .dos2unix), skipping: 2)
 
 let campusSectionsFilePath = dataDirectoryPath.appendingPathComponent( FileNames.campusSections )
 let campusSectionsFD = CsvFileDescription(path: campusSectionsFilePath, convertingLineEndings: (true, .dos2unix))
@@ -84,10 +84,10 @@ let tutorableSectionsFilePath = dataDirectoryPath.appendingPathComponent( FileNa
 let tutorableSectionsFD = CsvFileDescription(path: tutorableSectionsFilePath, convertingLineEndings: (true, .dos2unix))
 
 let testStudentInfoPath =       dataDirectoryPath.appendingPathComponent( FileNames.testStudentInfo )
-let testStudentInfoFD = CsvFileDescription(path: testStudentInfoPath, header: true)
+let testStudentInfoFD = CsvFileDescription(path: testStudentInfoPath, header: true, convertingLineEndings: (true, .dos2unix))
 
 let testEnrollmentPath =        dataDirectoryPath.appendingPathComponent( FileNames.testEnrollment )
-let testEnrollmentFD = CsvFileDescription(path: testEnrollmentPath, header: true)
+let testEnrollmentFD = CsvFileDescription(path: testEnrollmentPath, header: true, convertingLineEndings: (true, .dos2unix))
 
 let finalListDir =              dataDirectoryPath.appendingPathComponent("Final")
 
@@ -168,7 +168,7 @@ for student in currentStudents {
             countBySection[section] = count + 1
             sumCountBySection += 1
         } else {
-            //print("\(#line) section is NOT on campus \(section) \(student.email)")
+            // print("\(#line) section is NOT on campus \(section) \(student.email)")
         }
     }
     if isCampusSection {

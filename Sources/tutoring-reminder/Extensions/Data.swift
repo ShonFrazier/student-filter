@@ -21,7 +21,7 @@ extension Data {
 
         let (from, to) = { () -> (Data, Data) in
             switch with {
-                case .dos2unix: return (unix_le, dos_le)
+                case .dos2unix: return (dos_le, unix_le)
                 case .dos2mac:  return (dos_le, mac_le)
                 case .mac2dos:  return (mac_le, dos_le)
                 case .mac2unix: return (mac_le, unix_le)
@@ -30,22 +30,9 @@ extension Data {
             }
         }()
 
-        var newData = Data()
-        var currBfr = Data()
-
-        for (_, byte) in self.enumerated() {
-            currBfr.append(byte)
-
-            if from.contains(byte) && currBfr.count < from.count {
-                if currBfr == from {
-                    currBfr = to
-                } else {
-                    continue
-                }
-            }
-
-            newData.append(currBfr)
-            currBfr = Data()
+        var newData = self
+        while let range = newData.lastRange(of: from) {
+            newData.replaceSubrange(range, with: to)
         }
 
         return newData
