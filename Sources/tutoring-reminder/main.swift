@@ -50,7 +50,9 @@ let useTestData = false
 
 struct FileNames {
     static let zipCode = "ZipCodeCityCountyMiles25.csv"
+    //static let enrollment = "StudentEnrollmentFall2021.csv"
     static let enrollment = "campus-v2report-enrollment-2022-01-03.csv"
+    //static let studentInfo = "StudentInfoFall2021.csv"
     static let studentInfo = "campus-v2report-student-2022-01-03.csv"
     static let coursesWithTutors = "CourseListForNewtonCampusTutoring.txt"
     static let finalEmailList = "StudentEmailList.txt"
@@ -181,13 +183,13 @@ print("\n\(#line) countBySection on Campus: \(countBySection)") // working [8551
 print("\n\(#line) sumCountBySection on Campus: \(sumCountBySection)") // 10 working
 
 // gives a count of enrollment in each tutorable section on Campus
-var countByTutorableSection = [String:Int]() // ??? Does this reset to 0's
+var countByTutorableSection = [String:Int]() // ??? Does this reset to 0's - no, it resets to empty
 var sumCountByTutorableSection = 0
 for student in allStudents {
     for section in student.sections { // element in sections(Student)
         if tutorableSection.contains(section) {
-            let count = countByTutorableSection[section] ?? 0
-            countByTutorableSection[section] = count + 1
+            let count = countByTutorableSection[section] ?? 0 // and if it's empty, then we assume 0
+            countByTutorableSection[section] = count + 1 // and if it was zero, we now store a 1
             sumCountByTutorableSection += 1
         }
 
