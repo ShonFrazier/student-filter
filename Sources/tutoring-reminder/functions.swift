@@ -44,7 +44,8 @@ func readSections(from fileDescription: CsvFileDescription) -> Set<String> { pri
             sections.insert(section)
         }
     }
-
+    
+    print("\n\(#line) functions.swift sections.count = ", sections.count)
     return sections
 }
 
@@ -118,18 +119,13 @@ func readStudentEnrollment(from fileDescription: CsvFileDescription, students: S
 
         let course = Course(name: courseName, section: section, startDate: startDate)
         student.append(course: course) // add course to student's list
-
-        //if startDate != "" {
-            //student.append(course: course) // add course to student's list
-            //countCurrentStudentsCourses += 1
-            student.append(section: section)
-            student.append(startDate: section)
-       // }
+        student.append(section: section)
+        student.append(startDate: section)
  
     }
 }
 
-func write(list: [String], to dirPath: String, maxPerFile max: Int = 500) throws { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func write(list: [String], to dirPath: String, maxPerFile max: Int = 500) throws { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")} // list is local students in tutorable courses.
     // Clear the previous results by deleting and recreating the folder
     let url = URL(fileURLWithPath: finalListDir)
 
@@ -149,6 +145,7 @@ func write(list: [String], to dirPath: String, maxPerFile max: Int = 500) throws
     var slices = [[String]]()
     var count = 0
 
+    print("\n\(#line) funcions.swift Total Emails = ", list.count)
     while count < list.count {
             let start = count
             let end = min(count + max, list.count)

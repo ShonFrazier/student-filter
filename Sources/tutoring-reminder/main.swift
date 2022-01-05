@@ -15,19 +15,42 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/*
+ Format for CourseListForNewtonCampusTutoring.txt
+ String: subject name
+ ACCT-2101
+
+ Format for CampusSections.txt
+ String: section, String: subject name
+ "86466",ACCT-2101
+
+ Format for TutorableSections.txt
+ String: section, String: subject name
+ "86466",ACCT-2101
+ 
+ Format for StudentEmailList.txt ? student or Faculty
+ 
+ 
+ Format for FacultyEmailList.txt
+ 
+ 
+ Format for Report
+ 
+ */
+
 
 import Foundation
 
-let useTestData = true
+let useTestData = false
 
 struct FileNames {
     static let zipCode = "ZipCodeCityCountyMiles25.csv"
-    static let enrollment = "StudentEnrollmentFall2021.csv"
-    static let studentInfo = "StudentInfoFall2021.csv"
+    static let enrollment = "campus-v2report-enrollment-2022-01-03.csv"
+    static let studentInfo = "campus-v2report-student-2022-01-03.csv"
     static let coursesWithTutors = "CourseListForNewtonCampusTutoring.txt"
-    static let finalEmailList = "FinalList.txt"
-    static let campusSections = "CampusSections.txt"
-    static let tutorableSections = "TutorableSections.txt"
+    static let finalEmailList = "StudentEmailList.txt"
+    static let campusSections = "CampusSections.csv"
+    static let tutorableSections = "TutorableSections.csv" // used in readSections
 
     static let testStudentInfo = "StudentInfoTestFile.csv"
     static let testEnrollment = "StudentEnrollmentTestFile.csv"
@@ -42,16 +65,16 @@ let coursesWithTutorsPath =     dataDirectoryPath.appendingPathComponent( FileNa
 let coursesWithTutorsFD = CsvFileDescription(path: coursesWithTutorsPath)
 
 let studentInfoFilePath =       dataDirectoryPath.appendingPathComponent( FileNames.studentInfo )
-let studentInfoFD = CsvFileDescription(path: studentInfoFilePath, header: true)
+let studentInfoFD = CsvFileDescription(path: studentInfoFilePath, header: true, skipping: 2)
 
 let studentEnrollmentFilePath = dataDirectoryPath.appendingPathComponent( FileNames.enrollment )
-let studentEnrollmentFD = CsvFileDescription(path: studentEnrollmentFilePath, header: true)
+let studentEnrollmentFD = CsvFileDescription(path: studentEnrollmentFilePath, header: true, skipping: 2)
 
 let campusSectionsFilePath = dataDirectoryPath.appendingPathComponent( FileNames.campusSections )
-let campusSectionsFD = CsvFileDescription(path: campusSectionsFilePath)
+let campusSectionsFD = CsvFileDescription(path: campusSectionsFilePath, convertingLineEndings: (true, .dos2unix))
 
 let tutorableSectionsFilePath = dataDirectoryPath.appendingPathComponent( FileNames.tutorableSections )
-let tutorableSectionsFD = CsvFileDescription(path: tutorableSectionsFilePath)
+let tutorableSectionsFD = CsvFileDescription(path: tutorableSectionsFilePath, convertingLineEndings: (true, .dos2unix))
 
 let testStudentInfoPath =       dataDirectoryPath.appendingPathComponent( FileNames.testStudentInfo )
 let testStudentInfoFD = CsvFileDescription(path: testStudentInfoPath, header: true)
@@ -126,18 +149,19 @@ var countCurrentStudentsOnCampus = 0
 var isCampusSection = false
 var courseSection = ""
 
+print("\n\(#line) campusSections.count = ", campusSections.count    )
 for student in currentStudents {
     countCurrentStudentsCourses += student.coursesWithStartDate.count
 
-    for section in student.sections {
-        if campusSections.contains(section) { // is never true *** tried to compare c.section
-            print("\(#line) section is     on campus \(section) \(student.email)")
+    for section in student.sections { // campusSections comes from "CampusSections.txt"
+        if campusSections.contains(section) { 
+            //print("\(#line) section is on campus \(section) \(student.email)")
             isCampusSection = true
             let count = countBySection[section] ?? 0
             countBySection[section] = count + 1
             sumCountBySection += 1
         } else {
-            print("\(#line) section is NOT on campus \(section) \(student.email)")
+            //print("\(#line) section is NOT on campus \(section) \(student.email)")
         }
     }
     if isCampusSection {
@@ -148,8 +172,8 @@ for student in currentStudents {
 
 print("\n\(#line) Total Current Student Courses with start date: \(countCurrentStudentsCourses)") // 22 working
 print("\n\(#line) Total Current Students on Campus: \(countCurrentStudentsOnCampus)") // 6 not working
-print("\n\(#line) countBySection on Campus: \(countBySection)") // not working [85515: 2, 97005: 2, 86235: 1, 93567: 1, 87661: 1, 85855: 1, 95134: 2]
-print("\n\(#line) sumCountBySection on Campus: \(sumCountBySection)") // 10 not working
+print("\n\(#line) countBySection on Campus: \(countBySection)") // working [85515: 2, 97005: 2, 86235: 1, 93567: 1, 87661: 1, 85855: 1, 95134: 2]
+print("\n\(#line) sumCountBySection on Campus: \(sumCountBySection)") // 10 working
 
 // gives a count of enrollment in each tutorable section on Campus
 var countByTutorableSection = [String:Int]() // ??? Does this reset to 0's
@@ -172,7 +196,7 @@ print("\(#line) sumCountByTutorableSection on Campus: \(sumCountByTutorableSecti
 // 25 MILE RADIUS DATA
 // reduce allStudents to localStudents in 25 mile radius
 let localStudents = Array<Student>(allStudents.filter { localZipCodes.contains($0.zipCode) })
-print("\(#line) localStudents in 25 mile radius count: \(localStudents.count)") // 12 sb 11
+print("\(#line) localStudents in 25 mile radius count: \(localStudents.count)") // 12 working
 
 // gives a count by course name *** THIS WORKS ***
 var countByCourses = [Course:Int]()
@@ -186,8 +210,8 @@ for s in localStudents {
         }
     }
 }
-print("\n\(#line) countByCourses in localStudents: \(countByCourses)\n") // [engl-1101: 3, math-2652: 1, econ-2105: 2, math-1113: 1, math-1111: 1, acct-2102: 1, acct-2101: 1]
-print("\(#line) sumCountByCourses in localStudents: \(sumCountByCourses)\n")
+print("\n\(#line) countByCourses in localStudents: \(countByCourses)\n") // working [engl-1101: 3, math-2652: 1, econ-2105: 2, math-1113: 1, math-1111: 1, acct-2102: 1, acct-2101: 1]
+print("\(#line) sumCountByCourses in localStudents: \(sumCountByCourses)\n") // 10 working
 
 // That takes each student’s course list and keeps only those courses with a start date
 for student in localStudents { // remove courses that are not available in the tutoring lab
@@ -209,6 +233,7 @@ var emails: [String] = allStudents // should be coming from current students
 }                                               // ...enrolled in courses having a tutor
     .map { $0.email }                               // just their emails
     .removingDuplicates()
+    print("\n\(#line) local students in tutorable sections \n\temails.count = ", emails.count)
 
 do {
     try write(list: emails, to: finalListDir, maxPerFile: 500)
