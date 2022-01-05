@@ -16,6 +16,11 @@
  */
 
 /*
+ *************
+ files must be converted to unix.
+ In terminal: dos2unix <FILE NAME>
+ *************
+ 
  Format for CourseListForNewtonCampusTutoring.txt
  String: subject name
  ACCT-2101
