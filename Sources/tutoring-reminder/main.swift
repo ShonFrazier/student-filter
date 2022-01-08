@@ -46,14 +46,14 @@
 
 import Foundation
 
-let useTestData = false
+let useTestData = true
 
 struct FileNames {
     static let zipCode = "ZipCodeCityCountyMiles25.csv"
     //static let enrollment = "StudentEnrollmentFall2021.csv"
-    static let enrollment = "campus-v2report-enrollment-2022-01-03.csv"
+    static let enrollment = "campus-v2report-enrollment-2022-01-06.csv"
     //static let studentInfo = "StudentInfoFall2021.csv"
-    static let studentInfo = "campus-v2report-student-2022-01-03.csv"
+    static let studentInfo = "campus-v2report-student-2022-01-06.csv"
     static let coursesWithTutors = "CourseListForNewtonCampusTutoring.txt"
     static let finalEmailList = "StudentEmailList.txt"
     static let campusSections = "CampusSections.csv"

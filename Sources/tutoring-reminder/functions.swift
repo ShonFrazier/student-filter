@@ -45,7 +45,7 @@ func readSections(from fileDescription: CsvFileDescription) -> Set<String> { pri
         }
     }
     
-    print("\n\(#line) functions.swift sections.count = ", sections.count)
+    //print("\n\(#line) functions.swift sections.count = ", sections.count)
     return sections
 }
 

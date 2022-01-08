@@ -70,19 +70,8 @@ class CsvFile : CustomDebugStringConvertible {
             }
         }
 
-        if fd.skipLines > 0 {
-            var i = 0
-            lines.forEach({print("\(i): \($0)"); i += 1})
-        }
-
         self.lines = lines.map {
-            if fd.skipLines > 0 {
-                print("pause me")
-            }
-
             let newCsvLine = CsvLine(line: $0, columnNames: fieldNames)
-            print(newCsvLine.columns.count)
-
             return newCsvLine
         }
         self.fieldNames = fieldNames

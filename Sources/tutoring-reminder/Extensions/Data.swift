@@ -31,7 +31,7 @@ extension Data {
         }()
 
         var newData = self
-        while let range = newData.lastRange(of: from) {
+        while let range = newData.firstRange(of: from) {
             newData.replaceSubrange(range, with: to)
         }
 

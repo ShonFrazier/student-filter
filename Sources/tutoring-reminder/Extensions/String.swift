@@ -22,7 +22,7 @@ extension String {
         var result = self
 
         if nil != self.range(of: "~/") {
-            let home = "/Users/shon/"
+            let home = "/Users/vickie/"
             result = self.replacingOccurrences(of: "~/", with: "\(home)")
         }
 
