@@ -18,7 +18,7 @@
 import Foundation
 //public var countCurrentStudentsCourses = 0
 
-func readZipCodes(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readZipCodes(from fileDescription: CsvFileDescription) -> Set<String> {
     guard let file = try? CsvFile(fileDescription) else {
         return Set<String>()
     }
@@ -33,7 +33,7 @@ func readZipCodes(from fileDescription: CsvFileDescription) -> Set<String> { pri
     return zipCodes
 }
 
-func readSections(from fileDescription: CsvFileDescription) -> Set<String> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readSections(from fileDescription: CsvFileDescription) -> Set<String> {
     guard let file = try? CsvFile(fileDescription) else {
         return Set<String>()
     }
@@ -49,7 +49,7 @@ func readSections(from fileDescription: CsvFileDescription) -> Set<String> { pri
     return sections
 }
 
-func readCourses(from fileDescription: CsvFileDescription) -> Set<Course> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readCourses(from fileDescription: CsvFileDescription) -> Set<Course> {
     guard let file = try? CsvFile(fileDescription) else {
         return Set<Course>()
     }
@@ -65,7 +65,7 @@ func readCourses(from fileDescription: CsvFileDescription) -> Set<Course> { prin
     return courses
 }
 
-func readStudents(from fileDescription: CsvFileDescription) -> Set<Student> { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readStudents(from fileDescription: CsvFileDescription) -> Set<Student> {
     guard let file = try? CsvFile(fileDescription) else {
         return Set<Student>()
     }
@@ -90,7 +90,7 @@ func readStudents(from fileDescription: CsvFileDescription) -> Set<Student> { pr
     return studentList
 }
 
-func readStudentEnrollment(from fileDescription: CsvFileDescription, students: Set<Student>) { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")}
+func readStudentEnrollment(from fileDescription: CsvFileDescription, students: Set<Student>) {
     guard let file = try? CsvFile(fileDescription) else {
         return
     }
@@ -125,7 +125,8 @@ func readStudentEnrollment(from fileDescription: CsvFileDescription, students: S
     }
 }
 
-func write(list: [String], to dirPath: String, maxPerFile max: Int = 500) throws { print("\(clock()) begin \(#function)"); defer {print("\(clock()) end   \(#function)")} // list is local students in tutorable courses.
+func write(list: [String], to dirPath: String, maxPerFile max: Int = 500) throws {
+    // list is local students in tutorable courses.
     // Clear the previous results by deleting and recreating the folder
     let url = URL(fileURLWithPath: finalListDir)
 

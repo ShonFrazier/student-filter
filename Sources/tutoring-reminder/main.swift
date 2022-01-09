@@ -16,11 +16,19 @@
  */
 
 /*
- *************
- files must be converted to unix.
- In terminal: dos2unix <FILE NAME>
- *************
- 
+ // 1. Take current students from allStudents and put into currentStudents
+ // 2. get count of currentStudents (this is all Perimeter Students for the Current Semester)
+ // 3. filter currentStudents into campusStudents using CampusSections file
+ // 4. get count of Campus Students and Campus Sections
+ // 5. filter CampusSections to tutorableSections
+ // 6. get count of tutorableSections by section and a sum of tutorableSections
+ // 7. filter currentStudents into Students in 25 mile radius
+ // 8. get count of Students in 25 mile radius
+ // 9. filter Students in 25 mile radius into tutorableCourses
+ // 10 get count by Course and a sum of courses
+ */
+
+/*
  Format for CourseListForNewtonCampusTutoring.txt
  String: subject name
  ACCT-2101
@@ -92,27 +100,27 @@ let testEnrollmentFD = CsvFileDescription(path: testEnrollmentPath, header: true
 let finalListDir =              dataDirectoryPath.appendingPathComponent("Final")
 
 
-var localZipCodes = readZipCodes(from: zipCodeFD)
-print("\n\(#line) localZipCodes File count: \(localZipCodes.count)\n")
+let localZipCodes = readZipCodes(from: zipCodeFD)
+print("\(#line) localZipCodes File count: \(localZipCodes.count)\n")
 
-var tutoringLabCourses = readCourses(from: coursesWithTutorsFD)
-print("\n\(#line) tutoringLabCourses File count: \(tutoringLabCourses.count)\n")
+let tutoringLabCourses = readCourses(from: coursesWithTutorsFD)
+print("\(#line) tutoringLabCourses File count: \(tutoringLabCourses.count)\n")
 
-var campusSections = readSections(from: campusSectionsFD) // campusSections set of Strings
-print("\n\(#line) campusSections File count: \(campusSections.count)\n")
+let campusSections = readSections(from: campusSectionsFD) // campusSections set of Strings
+print("\(#line) campusSections File count: \(campusSections.count)\n")
 
-var tutorableSection = readSections(from: tutorableSectionsFD)
-print("\n\(#line) tutorableSection File count: \(tutorableSection.count)\n")
+let tutorableSection = readSections(from: tutorableSectionsFD)
+print("\(#line) tutorableSection File count: \(tutorableSection.count)\n")
 
 // Read the StudentInfo file allStudents = StudentInfo file
-var allStudents: Set<Student> = {
+let allStudents: Set<Student> = {
     if useTestData {
         return readStudents(from: testStudentInfoFD)
     } else {
         return readStudents(from: studentInfoFD)
     }
 }()
-print("\n\(#line) allStudents in StudentInfo File count: \(allStudents.count)\n")
+print("\(#line) allStudents in StudentInfo File count: \(allStudents.count)\n")
 
 // Read StudentEnrollment file
 if useTestData {
@@ -121,71 +129,69 @@ if useTestData {
     readStudentEnrollment(from: studentEnrollmentFD, students: allStudents)
 }
 
-func shouldKeepStudent(student: Student) -> Bool {
-    return student.hasCoursesWithStartDate
-}
-
-// 1. Take current students from allStudents and put into currentStudents
-// 2. get count of currentStudents (this is all Perimeter Students for the Current Semester)
-
-// notes from conversation Wed. 10-20-21
-// currentcourses = courses.filter{$0.startDate != ""}
-//currentStudents = students.filter{for $0.startDate != ""}
-var isCurrentStudent = false
-var currentStudents = Set<Student>(
-    allStudents.filter( shouldKeepStudent )
+let currentStudents = Set<Student>(
+    allStudents.filter { student in student.hasCoursesWithStartDate}
 )
-print("\n\(#line) Total Current Students: \(currentStudents.count)\n") // 14 correct
+print("\(#line) Current Student count: \(currentStudents.count)\n") // 14 correct
+
+let currentCampusStudents = currentStudents.filter { student in
+    for section in student.sections {
+        if campusSections.contains(section) {
+            return true
+        }
+    }
+    
+    return false
+}
+print("\(#line) Current Campus Student count: \(currentCampusStudents.count)\n") // 12 correct
+
+// ******** Don't need this *********
+// reduce allStudents to localStudents (25mi radius)
+let localStudents = Set<Student>(allStudents.filter { student in localZipCodes.contains(student.zipCode) })
+print("\(#line) localStudents in 25 mile radius count: \(localStudents.count)\n")
+
+// reduce currentStudents to localCurrentStudents (25mi radius)
+let localCurrentStudents = Set<Student>(currentStudents.filter { localZipCodes.contains($0.zipCode) })
+print("\(#line) localCurrentStudents in 25 mile radius enrolled on campus count: \(localCurrentStudents.count)\n")
+
+assert(localCurrentStudents == (localStudents.intersection(currentStudents)))
 
 // Operations stored in vars
 
-// 3. filter currentStudents into campusStudents using CampusSections file
-// 4. get count of Campus Students and Campus Sections
-// 5. filter CampusSections to tutorableSections
-// 6. get count of tutorableSections by section and a sum of tutorableSections
-// 7. filter currentStudents into Students in 25 mile radius
-// 8. get count of Students in 25 mile radius
-// 9. filter Students in 25 mile radius into tutorableCourses
-// 10 get count by Course and a sum of courses
-
 var countCurrentStudentsCourses = 0
-// CAMPUS DATA
 var countBySection = [String:Int]()
 var sumCountBySection = 0
 var countCurrentStudentsOnCampus = 0
 var isCampusSection = false
 var courseSection = ""
 
-print("\n\(#line) campusSections.count = ", campusSections.count    )
 for student in currentStudents {
     countCurrentStudentsCourses += student.coursesWithStartDate.count
 
     for section in student.sections { // campusSections comes from "CampusSections.txt"
         if campusSections.contains(section) { 
-            //print("\(#line) section is on campus \(section) \(student.email)")
             isCampusSection = true
             let count = countBySection[section] ?? 0
             countBySection[section] = count + 1
             sumCountBySection += 1
         } else {
-            // print("\(#line) section is NOT on campus \(section) \(student.email)")
+            continue
         }
     }
     if isCampusSection {
-        countCurrentStudentsOnCampus += 1
+        countCurrentStudentsOnCampus += 1 // calculated on line 151 don't need this
         isCampusSection = false
     }
 }
 
-print("\n\(#line) Total Current Student Courses with start date: \(countCurrentStudentsCourses)") // 22 working
-print("\n\(#line) Total Current Students on Campus: \(countCurrentStudentsOnCampus)") // 6 not working
-print("\n\(#line) countBySection on Campus: \(countBySection)") // working [85515: 2, 97005: 2, 86235: 1, 93567: 1, 87661: 1, 85855: 1, 95134: 2]
-print("\n\(#line) sumCountBySection on Campus: \(sumCountBySection)") // 10 working
+print("\(#line) Total Current Student Courses with start date: \(countCurrentStudentsCourses)\n")
+print("\(#line) countBySection on Campus: \(countBySection)\n")
+print("\(#line) sumCountBySection on Campus: \(sumCountBySection)\n")
 
 // gives a count of enrollment in each tutorable section on Campus
 var countByTutorableSection = [String:Int]() // ??? Does this reset to 0's - no, it resets to empty
 var sumCountByTutorableSection = 0
-for student in allStudents {
+for student in currentStudents {
     for section in student.sections { // element in sections(Student)
         if tutorableSection.contains(section) {
             let count = countByTutorableSection[section] ?? 0 // and if it's empty, then we assume 0
@@ -195,20 +201,15 @@ for student in allStudents {
 
     }
 }
-print("\n\(#line) countByTutorableSection on Campus: \(countByTutorableSection)\n")
+print("\(#line) countByTutorableSection on Campus: \(countByTutorableSection)\n")
 print("\(#line) sumCountByTutorableSection on Campus: \(sumCountByTutorableSection)\n")
 
-// total Students in
-
 // 25 MILE RADIUS DATA
-// reduce allStudents to localStudents in 25 mile radius
-let localStudents = Array<Student>(allStudents.filter { localZipCodes.contains($0.zipCode) })
-print("\(#line) localStudents in 25 mile radius count: \(localStudents.count)") // 12 working
 
 // gives a count by course name *** THIS WORKS ***
 var countByCourses = [Course:Int]()
 var sumCountByCourses = 0
-for s in localStudents {
+for s in currentStudents {
     for c in s.courses {
         if tutoringLabCourses.contains(c) {
             let count = countByCourses[c] ?? 0
@@ -217,10 +218,10 @@ for s in localStudents {
         }
     }
 }
-print("\n\(#line) countByCourses in localStudents: \(countByCourses)\n") // working [engl-1101: 3, math-2652: 1, econ-2105: 2, math-1113: 1, math-1111: 1, acct-2102: 1, acct-2101: 1]
-print("\(#line) sumCountByCourses in localStudents: \(sumCountByCourses)\n") // 10 working
+print("\(#line) countByCourses in currentStudents: \(countByCourses)\n")
+print("\(#line) sumCountByCourses in currentStudents: \(sumCountByCourses)\n") // 10 working
 
-// That takes each student’s course list and keeps only those courses with a start date
+
 for student in localStudents { // remove courses that are not available in the tutoring lab
     student.courses = student.courses.filter { tutoringLabCourses.contains($0) || $0.startDate != ""}
 }
@@ -230,17 +231,15 @@ var emailList = enrolledInTutorableCourses.map { $0.email }
 var emailNoDupe = emailList.removingDuplicates()
 
 // Operations chained
-var emails: [String] = allStudents // should be coming from current students
-    .filter { localZipCodes.contains($0.zipCode) }  // local students...
-    .filter { student in
-        student.courses.filter { course in
-            tutoringLabCourses.contains(course)
-        }
-        .count > 0
+
+var emails: [String] = currentStudents // will include all students in tutorable classes on Newton campus and should include students not on Newton campus but are in 25 mile radius.
+    //.filter { localZipCodes.contains($0.zipCode) }  // local students...
+        .filter { student in student.courses.filter { course in tutoringLabCourses.contains(course)}
+            .count > 0
 }                                               // ...enrolled in courses having a tutor
     .map { $0.email }                               // just their emails
     .removingDuplicates()
-    print("\n\(#line) local students in tutorable sections \n\temails.count = ", emails.count)
+    print("\(#line) local students in tutorable sections \n\temails.count =  \(emails.count)\n")
 
 do {
     try write(list: emails, to: finalListDir, maxPerFile: 500)
