@@ -146,7 +146,7 @@ func write(list: [String], to dirPath: String, maxPerFile max: Int = 500) throws
     var slices = [[String]]()
     var count = 0
 
-    print("\n\(#line) funcions.swift Total Emails = ", list.count)
+    //print("\n\(#line) funcions.swift Total Emails = ", list.count)
     while count < list.count {
             let start = count
             let end = min(count + max, list.count)

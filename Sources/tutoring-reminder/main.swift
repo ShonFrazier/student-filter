@@ -150,7 +150,7 @@ if useTestData {
 let currentStudents = Set<Student>(
     allStudents.filter { student in student.hasCoursesWithStartDate}
 )
-print("\(#line) Current Student count: \(currentStudents.count)\n")
+print("\(#line) Current Perimeter Student count: \(currentStudents.count)\n")
 
 let currentCampusStudents = currentStudents.filter { student in
     for section in student.sections {
@@ -202,7 +202,7 @@ for student in currentStudents {
     }
 }
 
-print("\(#line) Total Current Student Courses with start date: \(countCurrentStudentsCourses)\n")
+print("\(#line) Current Perimeter Student Sections with start date: \(countCurrentStudentsCourses)\n")
 print("\(#line) countBySection on Campus: \(countBySection)\n")
 print("\(#line) sumCountBySection on Campus: \(sumCountBySection)\n")
 
@@ -219,8 +219,8 @@ for student in currentStudents {
 
     }
 }
-print("\(#line) countByTutorableSection on Campus: \(countByTutorableSection)\n")
-print("\(#line) sumCountByTutorableSection on Campus: \(sumCountByTutorableSection)\n")
+print("\(#line) Current Count By Tutorable Section on Campus: \(countByTutorableSection)\n")
+print("\(#line) Current Campus Tutorable Sections on Campus: \(sumCountByTutorableSection)\n")
 
 // 25 MILE RADIUS DATA
 
@@ -246,6 +246,7 @@ for student in localStudents {
 for student in localStudents {
     student.courses = student.courses.filter { tutoringLabCourses.contains($0)}
 }
+print("\(#line) Local Students in Tutorable Sections: \(localStudents.count)\n")
 
 var enrolledInTutorableCourses = currentCampusStudents.filter { $0.courses.count > 0 }
 localStudents.filter { $0.courses.count > 0}
@@ -262,10 +263,22 @@ var emails: [String] = enrolledInTutorableCourses // will include all students i
 }                                               // ...enrolled in courses having a tutor
     .map { $0.email }                               // just their emails
     .removingDuplicates()
-    print("\(#line) students in tutorable sections \n\temails.count =  \(emails.count)\n")
+    // email count
+    print("\(#line) Total potential students using Newton LTC: \(emails.count)\n")
 
 do {
     try write(list: emails, to: finalListDir, maxPerFile: 500)
 } catch (let error) {
     print("Error writing file to path \(finalListDir)\n\t\(error)")
 }
+
+// Report
+print("REPORT\n")
+print("\(#line) Current Perimeter Student count: \t\t\t\t\t\t\t\(currentStudents.count)")
+print("\(#line) Current Perimeter Student Sections with start date: \t\t\(countCurrentStudentsCourses)\n")
+print("\(#line) Current Campus Student count: \t\t\t\t\t\t\t\t\(currentCampusStudents.count)")
+print("\(#line) Current Campus Student Sections count: \t\t\t\t\t\t\(sumCountBySection)\n")
+print("\(#line) Current Campus Tutorable Sections count: \t\t\t\t\t\(sumCountByTutorableSection)")
+print("\(#line) Local Students in Tutorable Sections Not on Campus count: \t\(localStudents.count)\n")
+print("\(#line) Total potential students using Newton LTC: \t\t\t\t\t\(emails.count)\n")
+
