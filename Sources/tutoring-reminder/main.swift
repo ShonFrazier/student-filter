@@ -63,11 +63,11 @@ let useTestData = false
 struct FileNames {
     static let zipCode = "ZipCodeCityCountyMiles25.csv"
     //static let enrollment = "StudentEnrollmentFall2021.csv"
-    static let enrollment = "campus-v2report-enrollment-2022-01-06.csv"
+    static let enrollment = "campus-v2report-enrollment-2022-01-11.csv"
     //static let studentInfo = "StudentInfoFall2021.csv"
-    static let studentInfo = "campus-v2report-student-2022-01-06.csv"
-    static let PerimeterTutorableSectionListEXCLUDESNewton = "PerimeterTutorableSectionListEXCLUDESNewton.csv"
-     static let PerimeterTutorableCoursesListEXCLUDESNewton = "PerimeterTutorableCoursesListEXCLUDESNewton.csv"
+    static let studentInfo = "campus-v2report-student-2022-01-11.csv"
+    static let PerimeterTutorableSectionsListEXCLUDESNewton = "PerimeterTutorableSectionsListEXCLUDESNewton.csv"
+    static let PerimeterSectionsListEXCLUDESNewton = "PerimeterSectionsListEXCLUDESNewton.csv"
     static let campusCoursesWithTutors = "CourseListForNewtonCampusTutoring.txt"
     static let finalEmailList = "StudentEmailList.txt"
     static let campusSections = "CampusSections.csv"
@@ -82,10 +82,10 @@ let dataDirectoryPath = "~/Documents/Programming/Swift Projects".expandingTildeI
 let zipCodeFilePath =           dataDirectoryPath.appendingPathComponent( FileNames.zipCode )
 let zipCodeFD = CsvFileDescription(path: zipCodeFilePath, convertingLineEndings: (true, .dos2unix))
 
-let PerimeterTutorableSectionListEXCLUDESNewtonFilePath =     dataDirectoryPath.appendingPathComponent( FileNames.PerimeterTutorableSectionListEXCLUDESNewton )
-let PerimeterTutorableSectionListEXCLUDESNewtonFD = CsvFileDescription(path: PerimeterTutorableSectionListEXCLUDESNewtonFilePath, convertingLineEndings: (true, .dos2unix))
+let PerimeterTutorableSectionsListEXCLUDESNewtonFilePath =     dataDirectoryPath.appendingPathComponent( FileNames.PerimeterTutorableSectionsListEXCLUDESNewton )
+let PerimeterTutorableSectionsListEXCLUDESNewtonFD = CsvFileDescription(path: PerimeterTutorableSectionsListEXCLUDESNewtonFilePath, convertingLineEndings: (true, .dos2unix))
 
-let PerimeterSectionsListEXCLUDESNewtonFilePath =     dataDirectoryPath.appendingPathComponent( FileNames.PerimeterTutorableSectionListEXCLUDESNewton )
+let PerimeterSectionsListEXCLUDESNewtonFilePath =     dataDirectoryPath.appendingPathComponent( FileNames.PerimeterSectionsListEXCLUDESNewton )
 let PerimeterSectionsListEXCLUDESNewtonFilePathFD = CsvFileDescription(path: PerimeterSectionsListEXCLUDESNewtonFilePath, convertingLineEndings: (true, .dos2unix))
 
 let campusCoursesWithTutorsPath =     dataDirectoryPath.appendingPathComponent( FileNames.campusCoursesWithTutors )
@@ -118,8 +118,8 @@ print("\(#line) localZipCodes File count: \(localZipCodes.count)\n")
 let tutoringLabCourses = readCourses(from: campusCoursesWithTutorsFD)
 print("\(#line) tutoringLabCourses File count: \(tutoringLabCourses.count)\n")
 
-let perimeterTutorableSectionsListEXCLUDESNewton = readSections(from: PerimeterTutorableSectionListEXCLUDESNewtonFD)
-print("\(#line) perimeterTutorableCoursesListEXCLUDESNewton File count: \(perimeterTutorableSectionsListEXCLUDESNewton.count)\n")
+let perimeterTutorableSectionsListEXCLUDESNewton = readSections(from: PerimeterTutorableSectionsListEXCLUDESNewtonFD)
+print("\(#line) perimeterTutorableSectionsListEXCLUDESNewton File count: \(perimeterTutorableSectionsListEXCLUDESNewton.count)\n")
 
 let PerimeterSectionListEXCLUDESNewton = readSections(from: PerimeterSectionsListEXCLUDESNewtonFilePathFD) // campusSections set of Strings
 print("\(#line) PerimeterSectionListEXCLUDESNewton File count: \(PerimeterSectionListEXCLUDESNewton.count)\n")
@@ -150,7 +150,7 @@ if useTestData {
 let currentStudents = Set<Student>(
     allStudents.filter { student in student.hasCoursesWithStartDate}
 )
-print("\(#line) Current Student count: \(currentStudents.count)\n") // 14 correct
+print("\(#line) Current Student count: \(currentStudents.count)\n")
 
 let currentCampusStudents = currentStudents.filter { student in
     for section in student.sections {
@@ -161,11 +161,11 @@ let currentCampusStudents = currentStudents.filter { student in
     
     return false
 }
-print("\(#line) Current Campus Student count: \(currentCampusStudents.count)\n") // 12 correct
+print("\(#line) Current Campus Student count: \(currentCampusStudents.count)\n")
 
 // ******** Don't need this *********
 // reduce allStudents to localStudents (25mi radius)
-let localStudents = Set<Student>(allStudents.filter { student in localZipCodes.contains(student.zipCode) })
+let localStudents = Set<Student>(currentStudents.filter { student in localZipCodes.contains(student.zipCode) })
 print("\(#line) localStudents in 25 mile radius count: \(localStudents.count)\n")
 
 // reduce currentStudents to localCurrentStudents (25mi radius)
@@ -237,24 +237,25 @@ for s in currentStudents {
     }
 }
 print("\(#line) countByCourses in currentStudents: \(countByCourses)\n")
-print("\(#line) sumCountByCourses in currentStudents: \(sumCountByCourses)\n") // 10 working
+print("\(#line) sumCountByCourses in currentStudents: \(sumCountByCourses)\n")
 
 for student in localStudents {
     student.sections = student.sections.filter { perimeterTutorableSectionsListEXCLUDESNewton.contains($0)}
 }
 
-for student in localStudents { // remove courses that are not available in the tutoring lab
-    student.courses = student.courses.filter { tutoringLabCourses.contains($0) || $0.startDate != ""}
+for student in localStudents {
+    student.courses = student.courses.filter { tutoringLabCourses.contains($0)}
 }
 
 var enrolledInTutorableCourses = currentCampusStudents.filter { $0.courses.count > 0 }
-enrolledInTutorableCourses.insert( localStudents.filter { $0.courses.count > 0})
+localStudents.filter { $0.courses.count > 0}
+    .forEach({enrolledInTutorableCourses.insert($0)})
 var emailList = localStudents.map { $0.email }
 var emailNoDupe = emailList.removingDuplicates()
 
 // Operations chained
 
-var emails: [String] = enrolledInTutorableCourses // will include all students in tutorable classes on Newton campus and should include students not on Newton campus but are in 25 mile radius.
+var emails: [String] = enrolledInTutorableCourses // will include all students in tutorable classes on Newton campus and students not on Newton campus but are in 25 mile radius.
     //.filter { localZipCodes.contains($0.zipCode) }  // local students...
         .filter { student in student.courses.filter { course in tutoringLabCourses.contains(course)}
             .count > 0
